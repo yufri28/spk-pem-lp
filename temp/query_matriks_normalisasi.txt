@@ -1,0 +1,131 @@
+SELECT a.nama_alternatif,
+       MAX(CASE WHEN k.nama_kriteria = 'Fasilitas' THEN sk.bobot_sub_kriteria END) AS C1,
+       MAX(CASE WHEN k.nama_kriteria = 'Jarak' THEN sk.bobot_sub_kriteria END) AS C2,
+       MAX(CASE WHEN k.nama_kriteria = 'Biaya' THEN sk.bobot_sub_kriteria END) AS C3,
+       MAX(CASE WHEN k.nama_kriteria = 'Luas Kamar' THEN sk.bobot_sub_kriteria END) AS C4,
+       MAX(CASE WHEN k.nama_kriteria = 'Keamanan' THEN sk.bobot_sub_kriteria END) AS C5,
+       MAX(CASE WHEN k.nama_kriteria = 'Fasilitas' THEN sk.bobot_sub_kriteria END) 
+       / 
+       (SELECT MAX(CASE WHEN k.nama_kriteria = 'Fasilitas' THEN sk.bobot_sub_kriteria END) 
+        FROM alternatif a
+        JOIN kecocokan_alt_kriteria kak ON a.id_alternatif = kak.f_id_alternatif
+        JOIN sub_kriteria sk ON kak.f_id_sub_kriteria = sk.id_sub_kriteria
+        JOIN kriteria k ON kak.f_id_kriteria = k.id_kriteria) AS div_C1,
+       (SELECT MIN(CASE WHEN k.nama_kriteria = 'Jarak' THEN sk.bobot_sub_kriteria END) 
+        FROM alternatif a
+        JOIN kecocokan_alt_kriteria kak ON a.id_alternatif = kak.f_id_alternatif
+        JOIN sub_kriteria sk ON kak.f_id_sub_kriteria = sk.id_sub_kriteria
+        JOIN kriteria k ON kak.f_id_kriteria = k.id_kriteria) / MIN(CASE WHEN k.nama_kriteria = 'Jarak' THEN sk.bobot_sub_kriteria END) AS div_C2,
+       (SELECT MIN(CASE WHEN k.nama_kriteria = 'Biaya' THEN sk.bobot_sub_kriteria END) 
+        FROM alternatif a
+        JOIN kecocokan_alt_kriteria kak ON a.id_alternatif = kak.f_id_alternatif
+        JOIN sub_kriteria sk ON kak.f_id_sub_kriteria = sk.id_sub_kriteria
+        JOIN kriteria k ON kak.f_id_kriteria = k.id_kriteria) / MIN(CASE WHEN k.nama_kriteria = 'Biaya' THEN sk.bobot_sub_kriteria END) AS div_C3,
+       MAX(CASE WHEN k.nama_kriteria = 'Luas Kamar' THEN sk.bobot_sub_kriteria END) 
+       / 
+       (SELECT MAX(CASE WHEN k.nama_kriteria = 'Luas Kamar' THEN sk.bobot_sub_kriteria END) 
+        FROM alternatif a
+        JOIN kecocokan_alt_kriteria kak ON a.id_alternatif = kak.f_id_alternatif
+        JOIN sub_kriteria sk ON kak.f_id_sub_kriteria = sk.id_sub_kriteria
+        JOIN kriteria k ON kak.f_id_kriteria = k.id_kriteria) AS div_C4,
+       MAX(CASE WHEN k.nama_kriteria = 'Keamanan' THEN sk.bobot_sub_kriteria END) 
+       / 
+       (SELECT MAX(CASE WHEN k.nama_kriteria = 'Keamanan' THEN sk.bobot_sub_kriteria END) 
+        FROM alternatif a
+        JOIN kecocokan_alt_kriteria kak ON a.id_alternatif = kak.f_id_alternatif
+        JOIN sub_kriteria sk ON kak.f_id_sub_kriteria = sk.id_sub_kriteria
+        JOIN kriteria k ON kak.f_id_kriteria = k.id_kriteria) AS div_C5
+FROM alternatif a
+JOIN kecocokan_alt_kriteria kak ON a.id_alternatif = kak.f_id_alternatif
+JOIN sub_kriteria sk ON kak.f_id_sub_kriteria = sk.id_sub_kriteria
+JOIN kriteria k ON kak.f_id_kriteria = k.id_kriteria
+GROUP BY a.nama_alternatif
+UNION ALL
+SELECT 'min_max',
+       MAX(CASE WHEN k.nama_kriteria = 'Fasilitas' THEN sk.bobot_sub_kriteria END) AS C1,
+       MIN(CASE WHEN k.nama_kriteria = 'Jarak' THEN sk.bobot_sub_kriteria END) AS C2,
+       MIN(CASE WHEN k.nama_kriteria = 'Biaya' THEN sk.bobot_sub_kriteria END) AS C3,
+       MAX(CASE WHEN k.nama_kriteria = 'Luas Kamar' THEN sk.bobot_sub_kriteria END) AS C4,
+       MAX(CASE WHEN k.nama_kriteria = 'Keamanan' THEN sk.bobot_sub_kriteria END) AS C5,
+       NULL AS div_C1,
+       NULL AS div_C2,
+       NULL AS div_C3,
+       NULL AS div_C4,
+       NULL AS div_C5
+FROM alternatif a
+JOIN kecocokan_alt_kriteria kak ON a.id_alternatif = kak.f_id_alternatif
+JOIN sub_kriteria sk ON kak.f_id_sub_kriteria = sk.id_sub_kriteria
+JOIN kriteria k ON kak.f_id_kriteria = k.id_kriteria;
+
+
+QUERY KEDUA DENGAN SELECT SUB kriteria
+SELECT a.nama_alternatif, a.id_alternatif,
+MAX(CASE WHEN k.nama_kriteria = 'Fasilitas' THEN sk.bobot_sub_kriteria END) AS C1,
+MAX(CASE WHEN k.nama_kriteria = 'Jarak' THEN sk.bobot_sub_kriteria END) AS C2,
+MAX(CASE WHEN k.nama_kriteria = 'Biaya' THEN sk.bobot_sub_kriteria END) AS C3,
+MAX(CASE WHEN k.nama_kriteria = 'Luas Kamar' THEN sk.bobot_sub_kriteria END) AS C4,
+MAX(CASE WHEN k.nama_kriteria = 'Keamanan' THEN sk.bobot_sub_kriteria END) AS C5,
+MAX(CASE WHEN k.nama_kriteria = 'Fasilitas' THEN sk.bobot_sub_kriteria END) 
+/ 
+(SELECT MAX(CASE WHEN k.nama_kriteria = 'Fasilitas' THEN sk.bobot_sub_kriteria END) 
+ FROM alternatif a
+ JOIN kecocokan_alt_kriteria kak ON a.id_alternatif = kak.f_id_alternatif
+ JOIN sub_kriteria sk ON kak.f_id_sub_kriteria = sk.id_sub_kriteria
+ JOIN kriteria k ON kak.f_id_kriteria = k.id_kriteria) AS div_C1,
+(SELECT MIN(CASE WHEN k.nama_kriteria = 'Jarak' THEN sk.bobot_sub_kriteria END) 
+ FROM alternatif a
+ JOIN kecocokan_alt_kriteria kak ON a.id_alternatif = kak.f_id_alternatif
+ JOIN sub_kriteria sk ON kak.f_id_sub_kriteria = sk.id_sub_kriteria
+ JOIN kriteria k ON kak.f_id_kriteria = k.id_kriteria) / MIN(CASE WHEN k.nama_kriteria = 'Jarak' THEN sk.bobot_sub_kriteria END) AS div_C2,
+(SELECT MIN(CASE WHEN k.nama_kriteria = 'Biaya' THEN sk.bobot_sub_kriteria END) 
+ FROM alternatif a
+ JOIN kecocokan_alt_kriteria kak ON a.id_alternatif = kak.f_id_alternatif
+ JOIN sub_kriteria sk ON kak.f_id_sub_kriteria = sk.id_sub_kriteria
+ JOIN kriteria k ON kak.f_id_kriteria = k.id_kriteria) / MIN(CASE WHEN k.nama_kriteria = 'Biaya' THEN sk.bobot_sub_kriteria END) AS div_C3,
+MAX(CASE WHEN k.nama_kriteria = 'Luas Kamar' THEN sk.bobot_sub_kriteria END) 
+/ 
+(SELECT MAX(CASE WHEN k.nama_kriteria = 'Luas Kamar' THEN sk.bobot_sub_kriteria END) 
+ FROM alternatif a
+ JOIN kecocokan_alt_kriteria kak ON a.id_alternatif = kak.f_id_alternatif
+ JOIN sub_kriteria sk ON kak.f_id_sub_kriteria = sk.id_sub_kriteria
+ JOIN kriteria k ON kak.f_id_kriteria = k.id_kriteria) AS div_C4,
+MAX(CASE WHEN k.nama_kriteria = 'Keamanan' THEN sk.bobot_sub_kriteria END) 
+/ 
+(SELECT MAX(CASE WHEN k.nama_kriteria = 'Keamanan' THEN sk.bobot_sub_kriteria END) 
+ FROM alternatif a
+ JOIN kecocokan_alt_kriteria kak ON a.id_alternatif = kak.f_id_alternatif
+ JOIN sub_kriteria sk ON kak.f_id_sub_kriteria = sk.id_sub_kriteria
+ JOIN kriteria k ON kak.f_id_kriteria = k.id_kriteria) AS div_C5,
+ MAX(CASE WHEN k.nama_kriteria = 'Fasilitas' THEN sk.nama_sub_kriteria END) AS nama_C1,
+ MIN(CASE WHEN k.nama_kriteria = 'Jarak' THEN sk.nama_sub_kriteria END) AS nama_C2,
+ MIN(CASE WHEN k.nama_kriteria = 'Biaya' THEN sk.bobot_sub_kriteria END) AS nama_C3,
+ MAX(CASE WHEN k.nama_kriteria = 'Luas Kamar' THEN sk.nama_sub_kriteria END) AS nama_C4,
+ MAX(CASE WHEN k.nama_kriteria = 'Keamanan' THEN sk.nama_sub_kriteria END) AS nama_C5
+FROM alternatif a
+JOIN kecocokan_alt_kriteria kak ON a.id_alternatif = kak.f_id_alternatif
+JOIN sub_kriteria sk ON kak.f_id_sub_kriteria = sk.id_sub_kriteria
+JOIN kriteria k ON kak.f_id_kriteria = k.id_kriteria
+WHERE kak.f_id_user = 1
+GROUP BY a.nama_alternatif
+UNION ALL
+SELECT 'min_max', NULL,
+MAX(CASE WHEN k.nama_kriteria = 'Fasilitas' THEN sk.bobot_sub_kriteria END) AS C1,
+MIN(CASE WHEN k.nama_kriteria = 'Jarak' THEN sk.bobot_sub_kriteria END) AS C2,
+MIN(CASE WHEN k.nama_kriteria = 'Biaya' THEN sk.bobot_sub_kriteria END) AS C3,
+MAX(CASE WHEN k.nama_kriteria = 'Luas Kamar' THEN sk.bobot_sub_kriteria END) AS C4,
+MAX(CASE WHEN k.nama_kriteria = 'Keamanan' THEN sk.bobot_sub_kriteria END) AS C5,
+NULL AS div_C1,
+NULL AS div_C2,
+NULL AS div_C3,
+NULL AS div_C4,
+NULL AS div_C5,
+NULL AS nama_C1,
+NULL AS nama_C2,
+NULL AS nama_C3,
+NULL AS nama_C4,
+NULL AS nama_C5
+FROM alternatif a
+JOIN kecocokan_alt_kriteria kak ON a.id_alternatif = kak.f_id_alternatif
+JOIN sub_kriteria sk ON kak.f_id_sub_kriteria = sk.id_sub_kriteria
+JOIN kriteria k ON kak.f_id_kriteria = k.id_kriteria
+WHERE kak.f_id_user = 1;

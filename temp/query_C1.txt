@@ -1,0 +1,51 @@
+SELECT SUM(result) AS total_sum
+FROM (
+    -- Query pertama
+    SELECT 
+        (1 / sk_inner.bobot_sub_kriteria) AS result
+    FROM alternatif a_inner
+    JOIN kecocokan_alt_kriteria kak_inner ON a_inner.id_alternatif = kak_inner.f_id_alternatif
+    JOIN sub_kriteria sk_inner ON kak_inner.f_id_sub_kriteria = sk_inner.id_sub_kriteria
+    JOIN kriteria k_inner ON kak_inner.f_id_kriteria = k_inner.id_kriteria
+    WHERE k_inner.id_kriteria = 'C1'
+    
+    UNION ALL
+    
+    -- Query kedua
+    SELECT 
+        (1 / MIN(CASE WHEN k_inner.id_kriteria = 'C1' THEN sk_inner.bobot_sub_kriteria END)) AS result
+    FROM alternatif a_inner
+    JOIN kecocokan_alt_kriteria kak_inner ON a_inner.id_alternatif = kak_inner.f_id_alternatif
+    JOIN sub_kriteria sk_inner ON kak_inner.f_id_sub_kriteria = sk_inner.id_sub_kriteria
+    JOIN kriteria k_inner ON kak_inner.f_id_kriteria = k_inner.id_kriteria
+    WHERE k_inner.id_kriteria = 'C1'
+) AS combined_results;
+
+
+
+Normasilasi Matrix C1
+
+SELECT 
+    result, 
+    result / SUM(result) OVER () AS total_sum
+FROM (
+    -- Query pertama
+    SELECT 
+        (1 / sk_inner.bobot_sub_kriteria) AS result
+    FROM alternatif a_inner
+    JOIN kecocokan_alt_kriteria kak_inner ON a_inner.id_alternatif = kak_inner.f_id_alternatif
+    JOIN sub_kriteria sk_inner ON kak_inner.f_id_sub_kriteria = sk_inner.id_sub_kriteria
+    JOIN kriteria k_inner ON kak_inner.f_id_kriteria = k_inner.id_kriteria
+    WHERE k_inner.id_kriteria = 'C1'
+
+    UNION ALL
+
+    -- Query kedua
+    SELECT 
+        (1 / MIN(CASE WHEN k_inner.id_kriteria = 'C1' THEN sk_inner.bobot_sub_kriteria END)) AS result
+    FROM alternatif a_inner
+    JOIN kecocokan_alt_kriteria kak_inner ON a_inner.id_alternatif = kak_inner.f_id_alternatif
+    JOIN sub_kriteria sk_inner ON kak_inner.f_id_sub_kriteria = sk_inner.id_sub_kriteria
+    JOIN kriteria k_inner ON kak_inner.f_id_kriteria = k_inner.id_kriteria
+    WHERE k_inner.id_kriteria = 'C1'
+) AS combined_results;

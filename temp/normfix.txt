@@ -1,0 +1,101 @@
+SELECT a.nama_alternatif,
+       MAX(CASE WHEN k.id_kriteria = 'C1' THEN sk.bobot_sub_kriteria END) AS C1,
+       MAX(CASE WHEN k.id_kriteria = 'C2' THEN sk.bobot_sub_kriteria END) AS C2,
+       MAX(CASE WHEN k.id_kriteria = 'C3' THEN sk.bobot_sub_kriteria END) AS C3,
+       MAX(CASE WHEN k.id_kriteria = 'C4' THEN sk.bobot_sub_kriteria END) AS C4,
+       
+       MAX(CASE WHEN k.id_kriteria = 'C1' THEN sk.bobot_sub_kriteria END) / 
+       ((SELECT SUM(sk_inner.bobot_sub_kriteria)
+        FROM alternatif a_inner
+        JOIN kecocokan_alt_kriteria kak_inner ON a_inner.id_alternatif = kak_inner.f_id_alternatif
+        JOIN sub_kriteria sk_inner ON kak_inner.f_id_sub_kriteria = sk_inner.id_sub_kriteria
+        JOIN kriteria k_inner ON kak_inner.f_id_kriteria = k_inner.id_kriteria
+        WHERE k_inner.id_kriteria = 'C1') + (SELECT MIN(sk_inner.bobot_sub_kriteria)
+        FROM alternatif a_inner
+        JOIN kecocokan_alt_kriteria kak_inner ON a_inner.id_alternatif = kak_inner.f_id_alternatif
+        JOIN sub_kriteria sk_inner ON kak_inner.f_id_sub_kriteria = sk_inner.id_sub_kriteria
+        JOIN kriteria k_inner ON kak_inner.f_id_kriteria = k_inner.id_kriteria
+        WHERE k_inner.id_kriteria = 'C1')) AS div_C1,
+        
+       MAX(CASE WHEN k.id_kriteria = 'C2' THEN sk.bobot_sub_kriteria END) / 
+       ((SELECT SUM(sk_inner.bobot_sub_kriteria)
+        FROM alternatif a_inner
+        JOIN kecocokan_alt_kriteria kak_inner ON a_inner.id_alternatif = kak_inner.f_id_alternatif
+        JOIN sub_kriteria sk_inner ON kak_inner.f_id_sub_kriteria = sk_inner.id_sub_kriteria
+        JOIN kriteria k_inner ON kak_inner.f_id_kriteria = k_inner.id_kriteria
+        WHERE k_inner.id_kriteria = 'C2') + (SELECT MIN(sk_inner.bobot_sub_kriteria)
+        FROM alternatif a_inner
+        JOIN kecocokan_alt_kriteria kak_inner ON a_inner.id_alternatif = kak_inner.f_id_alternatif
+        JOIN sub_kriteria sk_inner ON kak_inner.f_id_sub_kriteria = sk_inner.id_sub_kriteria
+        JOIN kriteria k_inner ON kak_inner.f_id_kriteria = k_inner.id_kriteria
+        WHERE k_inner.id_kriteria = 'C2')) AS div_C2,
+        
+       MAX(CASE WHEN k.id_kriteria = 'C3' THEN sk.bobot_sub_kriteria END) / 
+       ((SELECT SUM(sk_inner.bobot_sub_kriteria)
+        FROM alternatif a_inner
+        JOIN kecocokan_alt_kriteria kak_inner ON a_inner.id_alternatif = kak_inner.f_id_alternatif
+        JOIN sub_kriteria sk_inner ON kak_inner.f_id_sub_kriteria = sk_inner.id_sub_kriteria
+        JOIN kriteria k_inner ON kak_inner.f_id_kriteria = k_inner.id_kriteria
+        WHERE k_inner.id_kriteria = 'C3') + (SELECT MAX(sk_inner.bobot_sub_kriteria)
+        FROM alternatif a_inner
+        JOIN kecocokan_alt_kriteria kak_inner ON a_inner.id_alternatif = kak_inner.f_id_alternatif
+        JOIN sub_kriteria sk_inner ON kak_inner.f_id_sub_kriteria = sk_inner.id_sub_kriteria
+        JOIN kriteria k_inner ON kak_inner.f_id_kriteria = k_inner.id_kriteria
+        WHERE k_inner.id_kriteria = 'C3')) AS div_C3,
+        
+       MAX(CASE WHEN k.id_kriteria = 'C4' THEN sk.bobot_sub_kriteria END) / 
+       ((SELECT SUM(sk_inner.bobot_sub_kriteria)
+        FROM alternatif a_inner
+        JOIN kecocokan_alt_kriteria kak_inner ON a_inner.id_alternatif = kak_inner.f_id_alternatif
+        JOIN sub_kriteria sk_inner ON kak_inner.f_id_sub_kriteria = sk_inner.id_sub_kriteria
+        JOIN kriteria k_inner ON kak_inner.f_id_kriteria = k_inner.id_kriteria
+        WHERE k_inner.id_kriteria = 'C4') + (SELECT MAX(sk_inner.bobot_sub_kriteria)
+        FROM alternatif a_inner
+        JOIN kecocokan_alt_kriteria kak_inner ON a_inner.id_alternatif = kak_inner.f_id_alternatif
+        JOIN sub_kriteria sk_inner ON kak_inner.f_id_sub_kriteria = sk_inner.id_sub_kriteria
+        JOIN kriteria k_inner ON kak_inner.f_id_kriteria = k_inner.id_kriteria
+        WHERE k_inner.id_kriteria = 'C4')) AS div_C4
+
+FROM alternatif a
+JOIN kecocokan_alt_kriteria kak ON a.id_alternatif = kak.f_id_alternatif
+JOIN sub_kriteria sk ON kak.f_id_sub_kriteria = sk.id_sub_kriteria
+JOIN kriteria k ON kak.f_id_kriteria = k.id_kriteria
+GROUP BY a.nama_alternatif
+
+UNION ALL
+SELECT 'min_max',
+      MIN(CASE WHEN k.id_kriteria = 'C1' THEN sk.bobot_sub_kriteria END) AS C1,
+       MIN(CASE WHEN k.id_kriteria = 'C2' THEN sk.bobot_sub_kriteria END) AS C2,
+       MAX(CASE WHEN k.id_kriteria = 'C3' THEN sk.bobot_sub_kriteria END) AS C3,
+       MAX(CASE WHEN k.id_kriteria = 'C4' THEN sk.bobot_sub_kriteria END) AS C4,
+       NULL AS div_C1,
+       NULL AS div_C2,
+       MAX(CASE WHEN k.id_kriteria = 'C3' THEN sk.bobot_sub_kriteria END) / 
+       ((SELECT SUM(sk_inner.bobot_sub_kriteria)
+        FROM alternatif a_inner
+        JOIN kecocokan_alt_kriteria kak_inner ON a_inner.id_alternatif = kak_inner.f_id_alternatif
+        JOIN sub_kriteria sk_inner ON kak_inner.f_id_sub_kriteria = sk_inner.id_sub_kriteria
+        JOIN kriteria k_inner ON kak_inner.f_id_kriteria = k_inner.id_kriteria
+        WHERE k_inner.id_kriteria = 'C3') + (SELECT MAX(sk_inner.bobot_sub_kriteria)
+        FROM alternatif a_inner
+        JOIN kecocokan_alt_kriteria kak_inner ON a_inner.id_alternatif = kak_inner.f_id_alternatif
+        JOIN sub_kriteria sk_inner ON kak_inner.f_id_sub_kriteria = sk_inner.id_sub_kriteria
+        JOIN kriteria k_inner ON kak_inner.f_id_kriteria = k_inner.id_kriteria
+        WHERE k_inner.id_kriteria = 'C3')) AS div_C3,
+        
+       MAX(CASE WHEN k.id_kriteria = 'C4' THEN sk.bobot_sub_kriteria END) / 
+       ((SELECT SUM(sk_inner.bobot_sub_kriteria)
+        FROM alternatif a_inner
+        JOIN kecocokan_alt_kriteria kak_inner ON a_inner.id_alternatif = kak_inner.f_id_alternatif
+        JOIN sub_kriteria sk_inner ON kak_inner.f_id_sub_kriteria = sk_inner.id_sub_kriteria
+        JOIN kriteria k_inner ON kak_inner.f_id_kriteria = k_inner.id_kriteria
+        WHERE k_inner.id_kriteria = 'C4') + (SELECT MAX(sk_inner.bobot_sub_kriteria)
+        FROM alternatif a_inner
+        JOIN kecocokan_alt_kriteria kak_inner ON a_inner.id_alternatif = kak_inner.f_id_alternatif
+        JOIN sub_kriteria sk_inner ON kak_inner.f_id_sub_kriteria = sk_inner.id_sub_kriteria
+        JOIN kriteria k_inner ON kak_inner.f_id_kriteria = k_inner.id_kriteria
+        WHERE k_inner.id_kriteria = 'C4')) AS div_C4
+FROM alternatif a
+JOIN kecocokan_alt_kriteria kak ON a.id_alternatif = kak.f_id_alternatif
+JOIN sub_kriteria sk ON kak.f_id_sub_kriteria = sk.id_sub_kriteria
+JOIN kriteria k ON kak.f_id_kriteria = k.id_kriteria;
