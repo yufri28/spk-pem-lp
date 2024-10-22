@@ -17,6 +17,12 @@ class Kriteria{
     {
         return $this->db->query("SELECT * FROM `kriteria`");
     }
+
+    public function getTema()
+    {
+        return $this->db->query("SELECT * FROM `sub_kriteria` WHERE f_id_kriteria='C4'");
+    }
+
     public function getBobotKriteria($id_user=null)
     {
         return $this->db->query("SELECT * FROM bobot_kriteria WHERE f_id_user='$id_user'");

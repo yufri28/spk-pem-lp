@@ -24,58 +24,45 @@ GROUP BY a.nama_alternatif;");
 
 ?>
 <div class="container">
-    <div class="row">
-        <div class="col-4 mt-2">
-            <div class="teks d-flex align-items-center justify-content-center">
-                <div class="">
-                    <h5 class="display-6 fw-bold ls-tight">
-                        SISTEM PENDUKUNG KEPUTUSAN <br />
-                        <span class="text-primary">PEMILIHAN LOKASI PEMOTRETAN PREWEDDING DI KUPANG</span>
-                    </h5>
-                    <p style="color: hsl(217, 10%, 50.8%)">
-                        Sistem pendukung keputusan menggunakan metode <i style="color:#116A7B">ADDITIVE
-                            RATIO ASSESSMENT (ARAS)</i>
-                    </p>
-                </div>
-            </div>
+    <div class="row justify-content-center mt-lg-2">
+        <div class="col-md-12 text-center">
+            <h3 class="my-4 display-6 fw-bold ls-tight">
+                SISTEM PENDUKUNG KEPUTUSAN REKOMENDASI<br />
+                <span class="text-primary">LOKASI PREWEDDING DI KUPANG</span>
+            </h3>
+            <a href="./user/index.php" class="btn btn-primary">Cari Lokasi</a>
         </div>
-        <div class="col-8">
-            <div class="card mt-2 mb-4">
-                <div class="card-body">
-                    <div id="mapid"></div>
+    </div>
+</div>
+<div class="container">
+    <div class="row justify-content-center mt-lg-3 mb-5">
+        <div class="col-md-12">
+            <h4 class="ls-tight">Tampilan Lokasi: </h4>
+            <div id="carouselExampleAutoplaying" class="carousel slide carousel-fade" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    <?php foreach ($alternatif as $key => $value): ?>
+                    <div class="carousel-item <?= $key == 0 ? 'active' : '' ?>">
+                        <img src="../assets/img/<?= $value['gambar']; ?>" style="height: 50%"
+                            class="d-block w-100 img-fluid" alt="Gambar <?=$key?>">
+                    </div>
+                    <?php endforeach; ?>
                 </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleAutoplaying"
+                    data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleAutoplaying"
+                    data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
             </div>
         </div>
     </div>
 </div>
+
 <?php 
 require_once './../includes/footer.php';
 ?>
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-<script>
-var mymap = L.map('mapid').setView([-10.178443, 123.577572], 10);
-
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors'
-}).addTo(mymap);
-
-<?php
-      foreach ($alternatif as $location) {
-        if ($location['latitude'] != '-' && $location['longitude'] != '-') {
-            echo "var marker = L.marker([" . $location['latitude'] . ", " . $location['longitude'] . "], {});";
-            echo "marker.addTo(mymap);";
-            echo "marker.bindPopup(`
-                <div class='text-center'>
-                    <img src='../assets/img/" . $location['gambar'] . "' alt='Image' class='img-fluid' style='max-width:100%; height:auto;'><br>
-                </div>
-                <b>" . $location['nama_alternatif'] . "</b><br>
-                    Jarak ke Lok.: " . $location['spesifikasi_C1'] . "<br>
-                    Biaya Sewa: " . $location['spesifikasi_C2'] . "<br>
-                    Akses Masuk: " . $location['spesifikasi_C3'] . "<br>
-                    Tema: " . $location['spesifikasi_C4'] . "<br><br>
-                    <a target='_blank' href='https://www.google.com/maps/dir/?api=1&destination=" . $location['latitude'] . "," . $location['longitude'] . "' class='btn text-white btn-sm col-12 btn-success'>Lokasi</a>
-            `).openPopup();";
-         }
-      }
-    ?>
-</script>

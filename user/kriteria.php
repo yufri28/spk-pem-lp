@@ -46,6 +46,7 @@ if(isset($_POST['edit'])){
 }
 
 $data_Kriteria = $Kriteria->getKriteria();
+$dataTema = $Kriteria->getTema();
 
 $id_bobot = mysqli_fetch_assoc($data_Kriteria);
 $dataKriteria = [
@@ -113,7 +114,7 @@ Swal.fire({
                             <div class="mb-3 mt-3">
                                 <label for="prioritas_1" class="form-label">Prioritas 1</label>
                                 <select class="form-select" id="prioritas_1" name="prioritas_1"
-                                    aria-label="Default select example">
+                                    aria-label="Default select example" required>
                                     <option value="">-- Pilih prioritas 1 --</option>
                                     <?php foreach($dataKriteria as $kriteria):?>
                                     <option value="<?=$kriteria;?>">
@@ -124,7 +125,7 @@ Swal.fire({
                             </div>
                             <div class="mb-3 mt-3">
                                 <label for="prioritas_2" class="form-label">Prioritas 2</label>
-                                <select class="form-select" id="prioritas_2" name="prioritas_2">
+                                <select class="form-select" id="prioritas_2" name="prioritas_2" required>
                                     <option value="">-- Pilih prioritas 2 --</option>
                                     <?php foreach($dataKriteria as $kriteria):?>
                                     <option value="<?=$kriteria;?>">
@@ -135,7 +136,7 @@ Swal.fire({
                             </div>
                             <div class="mb-3 mt-3">
                                 <label for="prioritas_3" class="form-label">Prioritas 3</label>
-                                <select class="form-select" id="prioritas_3" name="prioritas_3">
+                                <select class="form-select" id="prioritas_3" name="prioritas_3" required>
                                     <option value="">-- Pilih prioritas 3 --</option>
                                     <?php foreach($dataKriteria as $kriteria):?>
                                     <option value="<?=$kriteria;?>">
@@ -146,7 +147,7 @@ Swal.fire({
                             </div>
                             <div class="mb-3 mt-3">
                                 <label for="prioritas_4" class="form-label">Prioritas 4</label>
-                                <select class="form-select" id="prioritas_4" name="prioritas_4">
+                                <select class="form-select" id="prioritas_4" name="prioritas_4" required>
                                     <option value="">-- Pilih prioritas 4 --</option>
                                     <?php foreach($dataKriteria as $kriteria):?>
                                     <option value="<?=$kriteria;?>">
@@ -154,6 +155,18 @@ Swal.fire({
                                     </option>
                                     <?php endforeach;?>
                                 </select>
+                            </div>
+                            <div class="mb-3 mt-3">
+                                <label for="tema" class="form-label">Tema</label>
+                                <select class="form-select" id="tema" name="tema">
+                                    <option value="">-- Pilih Tema --</option>
+                                    <?php foreach($dataTema as $tema):?>
+                                    <option value="<?=$tema['id_sub_kriteria'];?>">
+                                        <?=$tema['spesifikasi'];?>
+                                    </option>
+                                    <?php endforeach;?>
+                                </select>
+                                <small><i>Jika anda sudah punya pilihan tema, silahkan pilih tema!</i></small>
                             </div>
                             <button type="submit" name="simpan-prioritas" class="btn col-12 btn-outline-primary">
                                 Simpan

@@ -65,15 +65,29 @@ $data = $koneksi->query("SELECT a.nama_alternatif, a.alamat, a.latitude, a.longi
        MAX(CASE WHEN k.id_kriteria = 'C1' THEN sk.bobot_sub_kriteria END) AS C1,
        MAX(CASE WHEN k.id_kriteria = 'C2' THEN sk.bobot_sub_kriteria END) AS C2,
        MAX(CASE WHEN k.id_kriteria = 'C3' THEN sk.bobot_sub_kriteria END) AS C3,
-       MAX(CASE WHEN k.id_kriteria = 'C4' THEN sk.bobot_sub_kriteria END) AS C4
+       MAX(CASE WHEN k.id_kriteria = 'C4' THEN sk.bobot_sub_kriteria END) AS C4,
+       MAX(CASE WHEN k.id_kriteria = 'C4' THEN sk.id_sub_kriteria END) AS tema
 FROM alternatif a
 JOIN kecocokan_alt_kriteria kak ON a.id_alternatif = kak.f_id_alternatif
 JOIN sub_kriteria sk ON kak.f_id_sub_kriteria = sk.id_sub_kriteria
 JOIN kriteria k ON kak.f_id_kriteria = k.id_kriteria
 GROUP BY a.nama_alternatif ORDER BY a.id_alternatif");
 
+$results = [];
 // Ambil hasil query ke dalam array
-$results = $data->fetch_all(MYSQLI_ASSOC);
+$fecthData = $data->fetch_all(MYSQLI_ASSOC);
+
+if(isset($_POST['tema']) && $_POST['tema'] != null) {
+    $results = [];
+    foreach ($fecthData as $key => $value) {
+        if($_POST['tema'] == $value['tema']) {
+            $results[] = $value;  // Simpan hanya data yang cocok
+        }
+    }
+} else {
+    $results = $fecthData;  // Jika tidak ada filter, tampilkan semua data
+}
+
 
 // Mempersiapkan array untuk menampung nilai
 $beneficial_sum = ['C3' => 0, 'C4' => 0]; // Untuk menghitung jumlah kriteria yang menguntungkan
@@ -81,6 +95,7 @@ $cost_normalized_values = []; // Untuk menyimpan nilai normalisasi biaya
 
 // Menghitung jumlah dan menyiapkan nilai untuk normalisasi
 foreach ($results as $alternative) {
+
     if ($alternative['nama_alternatif'] !== 'min_max') { // Abaikan baris min_max
         $beneficial_sum['C3'] += $alternative['C3'];
         $beneficial_sum['C4'] += $alternative['C4'];
