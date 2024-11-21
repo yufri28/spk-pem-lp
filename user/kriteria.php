@@ -12,16 +12,18 @@ if(isset($_POST['simpan'])){
     $prioritas4 = $_POST['prioritas_4'];
     
 
-    $dataTampung = [
-        $prioritas1,$prioritas2,$prioritas3,$prioritas4,$prioritas5
-    ];
+    // $dataTampung = [
+    //     $prioritas1,$prioritas2,$prioritas3,$prioritas4,$prioritas5
+    // ];
+
+
     $dataBobotKriteria = [
         $prioritas1 => 0.3,
         $prioritas2 => 0.2,
         $prioritas3 => 0.2,
         $prioritas4 => 0.2
     ];
-    $Kriteria->tambahTampung($dataTampung);
+    // $Kriteria->tambahTampung($dataTampung);
     $tambahBobotKriteria = $Kriteria->tambahBobotKriteria($dataBobotKriteria);
 }
 if(isset($_POST['edit'])){
@@ -32,9 +34,9 @@ if(isset($_POST['edit'])){
     $prioritas3 = $_POST['prioritas_3'];
     $prioritas4 = $_POST['prioritas_4'];
    
-    $dataTampung = [
-        $prioritas1,$prioritas2,$prioritas3,$prioritas4,$prioritas5
-    ];
+    // $dataTampung = [
+    //     $prioritas1,$prioritas2,$prioritas3,$prioritas4,$prioritas5
+    // ];
     $dataBobotKriteria = [
         $prioritas1 => 0.3,
         $prioritas2 => 0.2,
@@ -42,7 +44,7 @@ if(isset($_POST['edit'])){
         $prioritas4 => 0.2,
     ];
     $tambahBobotKriteria = $Kriteria->editBobotKriteria($id_bobot,$dataBobotKriteria);
-    $Kriteria->editTampung($id,$dataTampung);
+    // $Kriteria->editTampung($id,$dataTampung);
 }
 
 $data_Kriteria = $Kriteria->getKriteria();
@@ -60,7 +62,7 @@ $dataKriteria = [
 // $result = $stmt->get_result();
 // $stmt->close();
 
-$dataTampung = $koneksi->query("SELECT * FROM tabel_tampung");
+// $dataTampung = $koneksi->query("SELECT * FROM tabel_tampung");
 
 
 ?>

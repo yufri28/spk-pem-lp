@@ -33,6 +33,30 @@
                 GROUP BY a.nama_alternatif ORDER BY a.id_alternatif DESC;");
         }
 
+        public function getAlternatifById($id_alternatif=null)
+        {
+            // return $this->db->query("SELECT * FROM alternatif");
+            return $this->db->query("SELECT a.nama_alternatif, a.id_alternatif, a.latitude, a.longitude, a.alamat, a.gambar, kak.id_alt_kriteria,
+                MAX(CASE WHEN k.id_kriteria = 'C1' THEN kak.id_alt_kriteria END) AS id_alt_C1,
+                MIN(CASE WHEN k.id_kriteria = 'C2' THEN kak.id_alt_kriteria END) AS id_alt_C2,
+                MIN(CASE WHEN k.id_kriteria = 'C3' THEN kak.id_alt_kriteria END) AS id_alt_C3,
+                MAX(CASE WHEN k.id_kriteria = 'C4' THEN kak.id_alt_kriteria END) AS id_alt_C4,
+                MAX(CASE WHEN k.id_kriteria = 'C1' THEN kak.f_id_sub_kriteria END) AS id_sub_C1,
+                MIN(CASE WHEN k.id_kriteria = 'C2' THEN kak.f_id_sub_kriteria END) AS id_sub_C2,
+                MIN(CASE WHEN k.id_kriteria = 'C3' THEN kak.f_id_sub_kriteria END) AS id_sub_C3,
+                MAX(CASE WHEN k.id_kriteria = 'C4' THEN kak.f_id_sub_kriteria END) AS id_sub_C4,
+                MAX(CASE WHEN k.id_kriteria = 'C1' THEN sk.nama_sub_kriteria END) AS nama_C1,
+                MIN(CASE WHEN k.id_kriteria = 'C2' THEN sk.nama_sub_kriteria END) AS nama_C2,
+                MIN(CASE WHEN k.id_kriteria = 'C3' THEN sk.nama_sub_kriteria END) AS nama_C3,
+                MAX(CASE WHEN k.id_kriteria = 'C4' THEN sk.nama_sub_kriteria END) AS nama_C4
+                FROM alternatif a
+                JOIN kecocokan_alt_kriteria kak ON a.id_alternatif = kak.f_id_alternatif
+                JOIN sub_kriteria sk ON kak.f_id_sub_kriteria = sk.id_sub_kriteria
+                JOIN kriteria k ON kak.f_id_kriteria = k.id_kriteria
+                WHERE a.id_alternatif='$id_alternatif'
+                GROUP BY a.nama_alternatif ORDER BY a.id_alternatif DESC;")->fetch_assoc();
+        }
+
         public function tambahAlternatif($dataAlternatif,$dataSubKriteria)
         {
             $cekData = $this->db->query("SELECT * FROM `alternatif` WHERE LOWER(nama_alternatif) = '".strtolower($dataAlternatif['nama_alternatif'])."'");

@@ -3,6 +3,14 @@ session_start();
 unset($_SESSION['menu']);
 $_SESSION['menu'] = 'beranda-admin';
 require_once './header.php';
+
+$access_time = date('Y-m-d');
+// Mendapatkan jumlah total pengunjung dan pengunjung hari ini
+$total_user_access_logs = $koneksi->query("SELECT COUNT(*) AS total FROM user_access_logs")->fetch_assoc()['total'];
+$today_user_access_logs = $koneksi->query("SELECT COUNT(*) AS today FROM user_access_logs WHERE DATE(access_time) = '$access_time'")->fetch_assoc()['today'];
+
+
+
 $alternatif = $koneksi->query("SELECT a.nama_alternatif, a.id_alternatif, a.latitude, a.longitude, a.gambar,
 MAX(CASE WHEN k.id_kriteria = 'C1' THEN kak.id_alt_kriteria END) AS id_sub_C1,
 MIN(CASE WHEN k.id_kriteria = 'C2' THEN kak.id_alt_kriteria END) AS id_sub_C2,
@@ -25,6 +33,24 @@ GROUP BY a.nama_alternatif;");
 
 <div class="container">
     <h3 class="text-center mb-4 mt-3">SISTEM PENDUKUNG KEPUTUSAN PEMILIHAN LOKASI PEMOTRETAN PREWEDDING DI KUPANG</h3>
+    <div class="row text-center mb-5">
+        <div class="col-lg-6 col-md-6 mb-3">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Total Pengunjung</h5>
+                    <h2 class="display-4"><?php echo $total_user_access_logs; ?></h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6 mb-3">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Pengunjung Hari Ini</h5>
+                    <h2 class="display-4"><?php echo $today_user_access_logs; ?></h2>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="card">
         <div class="card-body">
             <div id="mapid"></div>

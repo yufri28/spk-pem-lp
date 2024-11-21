@@ -259,7 +259,8 @@ Swal.fire({
                                         <td><?=$alternatif['latitude'];?></td>
                                         <td><?=$alternatif['longitude'];?></td>
                                         <td><?=$alternatif['alamat'];?></td>
-                                        <td><?=$alternatif['gambar'];?></td>
+                                        <td><img style="width:60px; height:60px;"
+                                                src="../assets/img/<?=$alternatif['gambar'];?>" alt=""></td>
                                         <td><?=$alternatif['nama_C1'];?></td>
                                         <td><?=$alternatif['nama_C2'];?></td>
                                         <td><?=$alternatif['nama_C3'];?></td>
@@ -332,7 +333,7 @@ Swal.fire({
                     <div class="mb-3 mt-3">
                         <label for="gambar" class="form-label">Gambar</label>
                         <input type="file" name="gambar" class="form-control" id="gambar" placeholder="Gambar" />
-                        <input type="text" name="gambar_lama" value="<?=$alternatif['gambar'];?>" required
+                        <input type="hidden" name="gambar_lama" value="<?=$alternatif['gambar'];?>" required
                             class="form-control" id="gambar_lama" />
                     </div>
                     <div class="mb-3 mt-3">

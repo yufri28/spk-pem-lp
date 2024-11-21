@@ -50,8 +50,15 @@ global $conn;
                     <a class="nav-link <?=$_SESSION['menu'] == 'hasil' ? 'active':'';?>" href="hasil.php">Hasil
                         Perhitungan</a>
                 </div>
-                <div class="navbar-nav ms-auto me-auto">
+                <!-- <div class="navbar-nav ms-auto me-auto">
                     <a class="nav-link" href="../auth/logout.php">Keluar</a>
+                </div> -->
+                <div class="navbar-nav ms-auto me-5">
+                    <?php if(isset($_SESSION['login'])):?>
+                    <a class="nav-link" href="../auth/logout.php">Logout</a>
+                    <?php else:?>
+                    <a class="nav-link" href="../auth/login.php">Login</a>
+                    <?php endif;?>
                 </div>
             </div>
         </div>

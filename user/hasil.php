@@ -73,6 +73,12 @@ JOIN sub_kriteria sk ON kak.f_id_sub_kriteria = sk.id_sub_kriteria
 JOIN kriteria k ON kak.f_id_kriteria = k.id_kriteria
 GROUP BY a.nama_alternatif ORDER BY a.id_alternatif");
 
+
+$tema = '';
+
+$selectTema = $koneksi->query("SELECT spesifikasi FROM sub_kriteria WHERE id_sub_kriteria='".$_POST['tema']."'");
+$tema = $selectTema->fetch_assoc();
+
 $results = [];
 // Ambil hasil query ke dalam array
 $fecthData = $data->fetch_all(MYSQLI_ASSOC);
@@ -386,6 +392,37 @@ Swal.fire({
                                         <td><?php echo number_format($Rij['Si'], 4); ?></td>
                                     </tr>
                                     <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="card mt-2">
+                    <div class="card-header bg-primary text-white">Hasil Inputan Prioritas</div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered nowrap" style="width:100%" id="table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Prioritas 1</th>
+                                        <th scope="col">Prioritas 2</th>
+                                        <th scope="col">Prioritas 3</th>
+                                        <th scope="col">Prioritas 4</th>
+                                        <th scope="col">Tema</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="table-group-divider">
+
+                                    <tr>
+
+                                        <td><?=$prioritas[0]?></td>
+                                        <td><?=$prioritas[1]?></td>
+                                        <td><?=$prioritas[2]?></td>
+                                        <td><?=$prioritas[3]?></td>
+                                        <td><?=$tema['spesifikasi'] ??'Semua';?></td>
+
+                                    </tr>
+
                                 </tbody>
                             </table>
                         </div>

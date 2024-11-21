@@ -66,25 +66,25 @@ class Kriteria{
             return $_SESSION['error'] = 'Terjadi kesalahan dalam menyimpan data.';
         }
     }
-    public function tambahTampung($dataTampung,$id_user)
-    {
-        $C1 = $dataTampung[0];
-        $C2 =  $dataTampung[1];
-        $C3 =  $dataTampung[2];
-        $C4 =  $dataTampung[3];
-        $C5 =  $dataTampung[4];
-        $this->db->query("INSERT INTO tabel_tampung (id, prio1, prio2, prio3, prio4, prio5, f_id_user) VALUES (NULL, '$C1', '$C2', '$C3', '$C4', '$C5', '$id_user')");
-    }
-    public function editTampung($id,$dataTampung)
-    {
-        $C1 = $dataTampung[0];
-        $C2 =  $dataTampung[1];
-        $C3 =  $dataTampung[2];
-        $C4 =  $dataTampung[3];
-        $C5 =  $dataTampung[4];
+    // public function tambahTampung($dataTampung,$id_user)
+    // {
+    //     $C1 = $dataTampung[0];
+    //     $C2 =  $dataTampung[1];
+    //     $C3 =  $dataTampung[2];
+    //     $C4 =  $dataTampung[3];
+    //     $C5 =  $dataTampung[4];
+    //     $this->db->query("INSERT INTO tabel_tampung (id, prio1, prio2, prio3, prio4, prio5, f_id_user) VALUES (NULL, '$C1', '$C2', '$C3', '$C4', '$C5', '$id_user')");
+    // }
+    // public function editTampung($id,$dataTampung)
+    // {
+    //     $C1 = $dataTampung[0];
+    //     $C2 =  $dataTampung[1];
+    //     $C3 =  $dataTampung[2];
+    //     $C4 =  $dataTampung[3];
+    //     $C5 =  $dataTampung[4];
 
-        $this->db->query("UPDATE tabel_tampung SET prio1='$C1',prio2='$C2',prio3='$C3',prio4='$C4',prio5='$C5' WHERE id='$id'");
-    }
+    //     $this->db->query("UPDATE tabel_tampung SET prio1='$C1',prio2='$C2',prio3='$C3',prio4='$C4',prio5='$C5' WHERE id='$id'");
+    // }
 
 }
 

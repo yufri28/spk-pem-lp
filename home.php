@@ -1,5 +1,6 @@
 <?php 
 session_start();
+$_SESSION['menu'] ='beranda-user';
 if(isset($_SESSION['login']) && $_SESSION['login'] == true && $_SESSION['role'] == 1){
     header("Location: ./user/index.php");
 }else if(isset($_SESSION['login']) && $_SESSION['login'] == true && $_SESSION['role'] == 0) {
@@ -58,6 +59,15 @@ GROUP BY a.nama_alternatif;");
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNavAltMarkup" style="font-family: 'Manrope', sans-serif">
+                <div class="navbar-nav ms-auto me-auto mt-3 mb-3">
+                    <a class="nav-link <?=$_SESSION['menu'] == 'beranda-user' ? 'active':'';?>"
+                        href="index.php">Beranda</a>
+                    <a class="nav-link <?=$_SESSION['menu'] == 'kriteria' ? 'active':'';?>"
+                        href="./user/kriteria.php">Form
+                        Cari Lokasi</a>
+                    <a class="nav-link <?=$_SESSION['menu'] == 'hasil' ? 'active':'';?>" href="./user/hasil.php">Hasil
+                        Perhitungan</a>
+                </div>
                 <div class="navbar-nav ms-auto me-5">
                     <?php if(isset($_SESSION['login'])):?>
                     <a class="nav-link" href="../auth/logout.php">Logout</a>
@@ -76,7 +86,7 @@ GROUP BY a.nama_alternatif;");
                     SISTEM PENDUKUNG KEPUTUSAN REKOMENDASI<br />
                     <span class="text-primary">LOKASI PREWEDDING DI KUPANG</span>
                 </h3>
-                <a href="./user/index.php" class="btn btn-primary">Cari Lokasi</a>
+                <!-- <a href="./user/index.php" class="btn btn-primary">Cari Lokasi</a> -->
             </div>
         </div>
     </div>

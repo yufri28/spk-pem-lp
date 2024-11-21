@@ -22,6 +22,28 @@ JOIN sub_kriteria sk ON kak.f_id_sub_kriteria = sk.id_sub_kriteria
 JOIN kriteria k ON kak.f_id_kriteria = k.id_kriteria
 GROUP BY a.nama_alternatif;");
 
+
+// Fungsi untuk mendapatkan IP address pengguna
+function getUserIP() {
+    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+        $ip = $_SERVER['HTTP_CLIENT_IP'];
+    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    } else {
+        $ip = $_SERVER['REMOTE_ADDR'];
+    }
+    return $ip;
+}
+
+// Mendapatkan data yang akan direkam
+$ip_address = getUserIP();
+$browser = $_SERVER['HTTP_USER_AGENT'];
+$access_time = date('Y-m-d H:i:s');
+
+// Menyimpan data ke database
+$sql = "INSERT INTO user_access_logs (ip_address, browser, access_time) VALUES ('$ip_address', '$browser', '$access_time')";
+$koneksi->query($sql);
+
 ?>
 <div class="container">
     <div class="row justify-content-center mt-lg-2">
@@ -30,7 +52,7 @@ GROUP BY a.nama_alternatif;");
                 SISTEM PENDUKUNG KEPUTUSAN REKOMENDASI<br />
                 <span class="text-primary">LOKASI PREWEDDING DI KUPANG</span>
             </h3>
-            <a href="./user/index.php" class="btn btn-primary">Cari Lokasi</a>
+            <!-- <a href="./user/index.php" class="btn btn-primary">Cari Lokasi</a> -->
         </div>
     </div>
 </div>
