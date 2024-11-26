@@ -6,6 +6,102 @@ require_once './header.php';
 require_once './functions/alternatif.php';
 
 $dataAlternatif = $getDataAlternatif->getDataAlternatif();
+// if(isset($_POST['simpan'])){
+//     $namaAlternatif = htmlspecialchars($_POST['nama_alternatif']);
+//     $latitude = htmlspecialchars($_POST['latitude']);
+//     $longitude = htmlspecialchars($_POST['longitude']);
+//     $alamat = htmlspecialchars($_POST['alamat']);
+//     $jarak_lokasi = htmlspecialchars($_POST['jarak_lokasi']);
+//     $biaya = htmlspecialchars($_POST['biaya']);
+//     $akses = htmlspecialchars($_POST['akses']);
+//     $tema = htmlspecialchars($_POST['tema']);
+
+//     // Handle file upload
+//     $gambar = $_FILES['gambar']['name'];
+//     $tempName = $_FILES['gambar']['tmp_name'];
+//     $folder = "../assets/img/" . basename($gambar);
+
+//     if (move_uploaded_file($tempName, $folder)) {
+//         $dataAlt = [
+//             'nama_alternatif' => $namaAlternatif,
+//             'latitude' => $latitude,
+//             'longitude' => $longitude,
+//             'alamat' => $alamat,
+//             'gambar' => $gambar // simpan nama file ke database
+//         ];
+//         $dataSubKriteria = [
+//             'C1' => $jarak_lokasi,
+//             'C2' => $biaya,
+//             'C3' => $akses,
+//             'C4' => $tema
+//         ];
+
+//         $getDataAlternatif->tambahAlternatif($dataAlt, $dataSubKriteria);
+//         $_SESSION['success'] = 'Gambar berhasil diupload!';
+//     } else {
+//         $_SESSION['error'] = 'Gagal mengupload gambar.';
+//     }
+// }
+
+// if (isset($_POST['edit'])) {
+//     $id_alternatif = htmlspecialchars($_POST['id_alternatif']);
+//     $namaAlternatif = htmlspecialchars($_POST['nama_alternatif']);
+//     $latitude = htmlspecialchars($_POST['latitude']);
+//     $longitude = htmlspecialchars($_POST['longitude']);
+//     $alamat = htmlspecialchars($_POST['alamat']);
+//     $jarak_lokasi = htmlspecialchars($_POST['jarak_lokasi']);
+//     $biaya = htmlspecialchars($_POST['biaya']);
+//     $akses = htmlspecialchars($_POST['akses']);
+//     $tema = htmlspecialchars($_POST['tema']);
+
+//     // Ambil data gambar lama dari database
+//     $dataAlternatifLama = $getDataAlternatif->getAlternatifById($id_alternatif);
+//     $gambarLama = $dataAlternatifLama['gambar']; // Nama gambar lama yang disimpan di database
+
+//     // Handle file upload for edit
+//     $gambarBaru = $_FILES['gambar']['name'];
+//     $tempName = $_FILES['gambar']['tmp_name'];
+//     $folder = "../assets/img/" . basename($gambarBaru);
+
+//     if (!empty($gambarBaru)) {
+//         // Jika ada gambar baru yang diupload
+//         if (move_uploaded_file($tempName, $folder)) {
+//             // Hapus gambar lama jika ada
+//             if (file_exists("../assets/img/" . $gambarLama)) {
+//                 unlink("../assets/img/" . $gambarLama);
+//             }
+
+//             // Update data dengan gambar baru
+//             $dataAlt = [
+//                 'id_alternatif' => $id_alternatif,
+//                 'nama_alternatif' => $namaAlternatif,
+//                 'latitude' => $latitude,
+//                 'longitude' => $longitude,
+//                 'alamat' => $alamat,
+//                 'gambar' => $gambarBaru // simpan nama file baru ke database
+//             ];
+//         } else {
+//             $_SESSION['error'] = 'Gagal mengupload gambar baru.';
+//             return;
+//         }
+//     } else {
+//         // Jika tidak ada gambar baru, tetap gunakan gambar lama
+//         $dataAlt = [
+//             'id_alternatif' => $id_alternatif,
+//             'nama_alternatif' => $namaAlternatif,
+//             'latitude' => $latitude,
+//             'longitude' => $longitude,
+//             'alamat' => $alamat,
+//             'gambar' => $gambarLama // tetap gunakan gambar lama
+//         ];
+//     }
+
+//     $dataSubKriteria = [$jarak_lokasi, $biaya, $akses, $tema];
+//     $getDataAlternatif->editAlternatif($dataAlt, $dataSubKriteria);
+//     $_SESSION['success'] = 'Data berhasil diupdate!';
+// }
+
+
 if(isset($_POST['simpan'])){
     $namaAlternatif = htmlspecialchars($_POST['nama_alternatif']);
     $latitude = htmlspecialchars($_POST['latitude']);
@@ -19,7 +115,12 @@ if(isset($_POST['simpan'])){
     // Handle file upload
     $gambar = $_FILES['gambar']['name'];
     $tempName = $_FILES['gambar']['tmp_name'];
-    $folder = "../assets/img/" . basename($gambar);
+
+    // Enkripsi nama file gambar
+    $ext = pathinfo($gambar, PATHINFO_EXTENSION); // Mendapatkan ekstensi file
+    $gambarEnkripsi = md5($gambar . time()) . '.' . $ext; // Membuat nama file terenkripsi
+
+    $folder = "../assets/img/" . $gambarEnkripsi;
 
     if (move_uploaded_file($tempName, $folder)) {
         $dataAlt = [
@@ -27,7 +128,7 @@ if(isset($_POST['simpan'])){
             'latitude' => $latitude,
             'longitude' => $longitude,
             'alamat' => $alamat,
-            'gambar' => $gambar // simpan nama file ke database
+            'gambar' => $gambarEnkripsi // simpan nama file terenkripsi ke database
         ];
         $dataSubKriteria = [
             'C1' => $jarak_lokasi,
@@ -61,13 +162,16 @@ if (isset($_POST['edit'])) {
     // Handle file upload for edit
     $gambarBaru = $_FILES['gambar']['name'];
     $tempName = $_FILES['gambar']['tmp_name'];
-    $folder = "../assets/img/" . basename($gambarBaru);
 
     if (!empty($gambarBaru)) {
         // Jika ada gambar baru yang diupload
+        $ext = pathinfo($gambarBaru, PATHINFO_EXTENSION); // Mendapatkan ekstensi file
+        $gambarEnkripsiBaru = md5($gambarBaru . time()) . '.' . $ext; // Membuat nama file terenkripsi baru
+        $folder = "../assets/img/" . $gambarEnkripsiBaru;
+
         if (move_uploaded_file($tempName, $folder)) {
             // Hapus gambar lama jika ada
-            if (file_exists("../assets/img/" . $gambarLama)) {
+            if (file_exists("../assets/img/" . $gambarLama) && is_file("../assets/img/" . $gambarLama)) {
                 unlink("../assets/img/" . $gambarLama);
             }
 
@@ -78,7 +182,7 @@ if (isset($_POST['edit'])) {
                 'latitude' => $latitude,
                 'longitude' => $longitude,
                 'alamat' => $alamat,
-                'gambar' => $gambarBaru // simpan nama file baru ke database
+                'gambar' => $gambarEnkripsiBaru // simpan nama file baru terenkripsi ke database
             ];
         } else {
             $_SESSION['error'] = 'Gagal mengupload gambar baru.';
@@ -102,10 +206,30 @@ if (isset($_POST['edit'])) {
 }
 
 
-if(isset($_POST['hapus'])){
+
+// if(isset($_POST['hapus'])){
+//     $idAlternatif = htmlspecialchars($_POST['id_alternatif']);
+//     $getDataAlternatif->hapusAlternatif($idAlternatif);
+// }
+
+if (isset($_POST['hapus'])) {
     $idAlternatif = htmlspecialchars($_POST['id_alternatif']);
+
+    // Ambil data alternatif berdasarkan ID untuk mendapatkan nama file gambar
+    $dataAlternatif = $getDataAlternatif->getAlternatifById($idAlternatif);
+    $gambar = $dataAlternatif['gambar']; // Nama file gambar yang tersimpan di database
+
+    // Hapus gambar dari folder jika ada
+    if (!empty($gambar) && file_exists("../assets/img/" . $gambar)) {
+        unlink("../assets/img/" . $gambar);
+    }
+
+    // Hapus data alternatif dari database
     $getDataAlternatif->hapusAlternatif($idAlternatif);
+
+    $_SESSION['success'] = 'Data dan gambar berhasil dihapus!';
 }
+
 
 $getSubJarakLokasi = $getDataAlternatif->getSubJarakLokasi();
 $getSubBiaya = $getDataAlternatif->getSubBiaya();
