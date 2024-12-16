@@ -271,7 +271,7 @@ Swal.fire({
                     </div>
                 </div>
                 <!-- </div> -->
-                <div class="card mt-2">
+                <!-- <div class="card mt-2">
                     <div class="card-header bg-primary text-white">Matriks</div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -301,8 +301,8 @@ Swal.fire({
                             </table>
                         </div>
                     </div>
-                </div>
-                <div class="card mt-2">
+                </div> -->
+                <!-- <div class="card mt-2">
                     <div class="card-header bg-primary text-white">Matriks Normalisasi</div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -332,8 +332,8 @@ Swal.fire({
                             </table>
                         </div>
                     </div>
-                </div>
-                <div class="card mt-2">
+                </div> -->
+                <!-- <div class="card mt-2">
                     <div class="card-header bg-primary text-white">Matriks Normalisasi Terbobot</div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -363,8 +363,8 @@ Swal.fire({
                             </table>
                         </div>
                     </div>
-                </div>
-                <div class="card mt-2 mb-4">
+                </div> -->
+                <!-- <div class="card mt-2 mb-4">
                     <div class="card-header bg-primary text-white">Nilai Si</div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -396,8 +396,8 @@ Swal.fire({
                             </table>
                         </div>
                     </div>
-                </div>
-                <div class="card mt-2">
+                </div> -->
+                <!-- <div class="card mt-2">
                     <div class="card-header bg-primary text-white">Hasil Inputan Prioritas</div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -427,7 +427,7 @@ Swal.fire({
                             </table>
                         </div>
                     </div>
-                </div>
+                </div> -->
                 <div class="card mt-2">
                     <div class="card-header bg-primary text-white">Hasil Perengkingan</div>
                     <div class="card-body">
