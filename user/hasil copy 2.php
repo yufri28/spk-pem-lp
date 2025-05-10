@@ -81,87 +81,19 @@ $tema = $selectTema->fetch_assoc();
 
 $results = [];
 // Ambil hasil query ke dalam array
-$fetchData = $data->fetch_all(MYSQLI_ASSOC);
-
-// echo "<pre>";
-// print_r ($fetchData);
-// echo "</pre>";
-
-// $fetchData[0]['C1'] = 200;
-
-// echo "After";
-// echo "<pre>";
-// print_r ($fetchData);
-// echo "</pre>";
-
-// die;
-
-// Aturan
-// Sangat dekat <= 5 Km Bobot 5
-// Dekat > 5 -  ≤ 15 Km  Bobot 4
-// Sedang > 15 - ≤ 25 Km Bobot 3
-// Jauh > 25 - ≤ 35 Km Bobot 2
-// Sangat Jauh > 35 Km Bobot 1
-
-
-// Saya ingin mengupdate array ini
-// $fetchData[0]['C1'] = isi dengan perbadingan Aturan diatas dan hasil perhitungan jarak;
-
-
-// Fungsi hitung jarak antara dua titik koordinat
-function hitungJarak($lat1, $lon1, $lat2, $lon2) {
-    $earthRadius = 6371; // Radius bumi dalam KM
-    $dLat = deg2rad($lat2 - $lat1);
-    $dLon = deg2rad($lon2 - $lon1);
-    $a = sin($dLat/2) * sin($dLat/2) +
-         cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
-         sin($dLon/2) * sin($dLon/2);
-    $c = 2 * atan2(sqrt($a), sqrt(1-$a));
-    return $earthRadius * $c;
-}
-
-// Fungsi menentukan bobot berdasarkan jarak
-function bobotDariJarak($jarakKm) {
-    if ($jarakKm <= 5) return 5;
-    elseif ($jarakKm <= 15) return 4;
-    elseif ($jarakKm <= 25) return 3;
-    elseif ($jarakKm <= 35) return 2;
-    else return 1;
-}
-
-// Lokasi user, pastikan ini berasal dari input user
-$userLat = $_SESSION['user_lat']??null; // atau $_POST['user_lat']
-$userLng = $_SESSION['user_lng']??null; // atau $_POST['user_lng']
-
-// Proses data alternatif
-foreach ($fetchData as $i => $lokasi) {
-    $lat = $lokasi['latitude'];
-    $lng = $lokasi['longitude'];
-
-    if ($lat != '-' && $lng != '-') {
-        $jarakKm = hitungJarak($userLat, $userLng, $lat, $lng);
-
-        $fetchData[$i]['C1'] = bobotDariJarak($jarakKm);
-        $fetchData[$i]['spesifikasi_C1'] = number_format($jarakKm, 2) . " km";
-    } else {
-        // Jika tidak ada koordinat, anggap tidak valid
-        $fetchData[$i]['C1'] = 0;
-        $fetchData[$i]['spesifikasi_C1'] = 'Tidak valid';
-    }
-}
-
-
+$fecthData = $data->fetch_all(MYSQLI_ASSOC);
 
 if(isset($_POST['tema']) && $_POST['tema'] != null) {
     $results = [];
-    foreach ($fetchData as $key => $value) {
-            if($_POST['tema'] == $value['tema']) {
-            $results[] = $value; // Simpan hanya data yang cocok
+    foreach ($fecthData as $key => $value) {
+        if($_POST['tema'] == $value['tema']) {
+            $results[] = $value;  // Simpan hanya data yang cocok
         }
     }
-} else {    
-    $results = $fetchData; // Jika tidak ada filter, tampilkan semua data
+} else {
+    $results = $fecthData;  // Jika tidak ada filter, tampilkan semua data
 }
+
 
 // Mempersiapkan array untuk menampung nilai
 $beneficial_sum = ['C3' => 0, 'C4' => 0]; // Untuk menghitung jumlah kriteria yang menguntungkan
@@ -173,7 +105,7 @@ foreach ($results as $alternative) {
     if ($alternative['nama_alternatif'] !== 'min_max') { // Abaikan baris min_max
         $beneficial_sum['C3'] += $alternative['C3'];
         $beneficial_sum['C4'] += $alternative['C4'];
-
+        
         // Menyimpan nilai untuk normalisasi biaya
         $cost_normalized_values[] = 1 / $alternative['C1']; // Normalisasi untuk C1 (Rumus 1/Langkah 1)
         $cost_normalized_values[] = 1 / $alternative['C2']; // Normalisasi untuk C2 (Rumus 1/Langkah 1)
@@ -186,9 +118,9 @@ $cost_normalized_sum = array_sum($cost_normalized_values);
 // Normalisasi
 $normalized_data = [];
 foreach ($results as $alternative) {
-$C1_normalized = 1 / $alternative['C1']; // Normalisasi untuk cost (Rumus 1/Langkah 1)
-$C2_normalized = 1 / $alternative['C2']; // Normalisasi untuk cost (Rumus 1/Langkah 1)
-
+    $C1_normalized = 1 / $alternative['C1']; // Normalisasi untuk cost (Rumus 1/Langkah 1)
+    $C2_normalized = 1 / $alternative['C2']; // Normalisasi untuk cost (Rumus 1/Langkah 1)
+    
     $normalized_data[] = [
         'nama_alternatif' => $alternative['nama_alternatif'],
         'C1' => $C1_normalized / $cost_normalized_sum, // Normalisasi C1 (Rumus 2/Langkah 2)
@@ -282,6 +214,7 @@ foreach ($optimal_values as $optimal) {
 usort($ranked_values, function($a, $b) {
     return $b['peringkat'] <=> $a['peringkat'];
 });
+
 ?>
 
 <?php if (isset($_SESSION['success'])): ?>
@@ -338,7 +271,7 @@ Swal.fire({
                     </div>
                 </div>
                 <!-- </div> -->
-                <div class="card mt-2">
+                <!-- <div class="card mt-2">
                     <div class="card-header bg-primary text-white">Matriks</div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -368,8 +301,8 @@ Swal.fire({
                             </table>
                         </div>
                     </div>
-                </div>
-                <div class="card mt-2">
+                </div> -->
+                <!-- <div class="card mt-2">
                     <div class="card-header bg-primary text-white">Matriks Normalisasi</div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -399,8 +332,8 @@ Swal.fire({
                             </table>
                         </div>
                     </div>
-                </div>
-                <div class="card mt-2">
+                </div> -->
+                <!-- <div class="card mt-2">
                     <div class="card-header bg-primary text-white">Matriks Normalisasi Terbobot</div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -430,8 +363,8 @@ Swal.fire({
                             </table>
                         </div>
                     </div>
-                </div>
-                <div class="card mt-2 mb-4">
+                </div> -->
+                <!-- <div class="card mt-2 mb-4">
                     <div class="card-header bg-primary text-white">Nilai Si</div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -463,8 +396,8 @@ Swal.fire({
                             </table>
                         </div>
                     </div>
-                </div>
-                <div class="card mt-2">
+                </div> -->
+                <!-- <div class="card mt-2">
                     <div class="card-header bg-primary text-white">Hasil Inputan Prioritas</div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -494,12 +427,12 @@ Swal.fire({
                             </table>
                         </div>
                     </div>
-                </div>
+                </div> -->
                 <div class="card mt-2">
                     <div class="card-header bg-primary text-white">Hasil Perengkingan</div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-striped table-bordered nowrap" id="table">
+                            <table class="table table-striped table-bordered nowrap" style="width:100%" id="table">
                                 <thead>
                                     <tr>
                                         <th scope="col">Ranking</th>
@@ -517,9 +450,7 @@ Swal.fire({
                                     <tr>
                                         <th scope="row"><?=$key+1;?></th>
                                         <td><?=$value['nama_alternatif']?></td>
-                                        <td id="jarak_<?=$key;?>">
-                                            <?=$value['nama_C1'];?> (<span class="text-muted">menghitung...</span>)
-                                        </td>
+                                        <td><?=$value['nama_C1'].' ('.$value['spesifikasi_C1'].')';?></td>
                                         <td><?=$value['nama_C2'].' ('.$value['spesifikasi_C2'].')';?></td>
                                         <td><?=$value['nama_C3'].' ('.$value['spesifikasi_C3'].')';?></td>
                                         <td><?=$value['nama_C4'].' ('.$value['spesifikasi_C4'].')';?></td>
@@ -555,96 +486,22 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           return $a['peringkat'] <=> $b['peringkat'];
       });
       $iconNumber = count($ranked_values); // Angka awal untuk ikon (misalnya 1)
-    //   foreach ($ranked_values as $location) {
-    //     if ($location['latitude'] != '-' && $location['longitude'] != '-') {
-    //         echo "var marker = L.marker([" . $location['latitude'] . ", " . $location['longitude'] . "], {});";
-    //         echo "marker.addTo(mymap);";
-    //         echo "marker.bindPopup(`
-    //             <div class='text-center'>
-    //                 <img src='../assets/img/" . $location['gambar'] . "' alt='Image' class='img-fluid' style='max-width:100%; height:auto;'><br>
-    //             </div>
-    //             <b>" . $location['nama_alternatif'] . "</b><br>
-    //                 Jarak ke Lok.: " . $location['spesifikasi_C1'] . "<br>
-    //                 Biaya Sewa: " . $location['spesifikasi_C2'] . "<br>
-    //                 Akses Masuk: " . $location['spesifikasi_C3'] . "<br>
-    //                 Tema: " . $location['spesifikasi_C4'] . "<br><br>
-    //                 <a target='_blank' href='https://www.google.com/maps/dir/?api=1&destination=" . $location['latitude'] . "," . $location['longitude'] . "' class='btn text-white btn-sm col-12 btn-success'>Lokasi</a>
-    //         `).openPopup();";
-    //     }
-    //   }
-    $index = 0;
-    foreach ($ranked_values as $location) {
+      foreach ($ranked_values as $location) {
         if ($location['latitude'] != '-' && $location['longitude'] != '-') {
-            echo "var marker_$index = L.marker([" . $location['latitude'] . ", " . $location['longitude'] . "]).addTo(mymap);\n";
-            echo "marker_$index.customData = {
-                lat: " . $location['latitude'] . ",
-                lng: " . $location['longitude'] . ",
-                nama: '" . $location['nama_alternatif'] . "',
-                gambar: '" . $location['gambar'] . "',
-                spesifikasi_C1: '" . $location['spesifikasi_C1'] . "',
-                spesifikasi_C2: '" . $location['spesifikasi_C2'] . "',
-                spesifikasi_C3: '" . $location['spesifikasi_C3'] . "',
-                spesifikasi_C4: '" . $location['spesifikasi_C4'] . "'
-            };\n";
-            $index++;
+            echo "var marker = L.marker([" . $location['latitude'] . ", " . $location['longitude'] . "], {});";
+            echo "marker.addTo(mymap);";
+            echo "marker.bindPopup(`
+                <div class='text-center'>
+                    <img src='../assets/img/" . $location['gambar'] . "' alt='Image' class='img-fluid' style='max-width:100%; height:auto;'><br>
+                </div>
+                <b>" . $location['nama_alternatif'] . "</b><br>
+                    Jarak ke Lok.: " . $location['spesifikasi_C1'] . "<br>
+                    Biaya Sewa: " . $location['spesifikasi_C2'] . "<br>
+                    Akses Masuk: " . $location['spesifikasi_C3'] . "<br>
+                    Tema: " . $location['spesifikasi_C4'] . "<br><br>
+                    <a target='_blank' href='https://www.google.com/maps/dir/?api=1&destination=" . $location['latitude'] . "," . $location['longitude'] . "' class='btn text-white btn-sm col-12 btn-success'>Lokasi</a>
+            `).openPopup();";
         }
-    }
-
+      }
 ?>
-</script>
-<script>
-var lokasiData = <?= json_encode(array_map(function($item) {
-    return [
-        'lat' => $item['latitude'],
-        'lng' => $item['longitude'],
-        'nama' => $item['nama_alternatif']
-    ];
-}, $ranked_values)); ?>;
-</script>
-
-<script>
-navigator.geolocation.getCurrentPosition(function(position) {
-    var userLat = position.coords.latitude;
-    var userLng = position.coords.longitude;
-
-    var userLocation = L.latLng(userLat, userLng);
-
-    // Tambahkan marker untuk user
-    var userMarker = L.marker([userLat, userLng], {
-            color: 'blue'
-        }).addTo(mymap)
-        .bindPopup("Lokasi Anda").openPopup();
-
-    // Loop marker_0, marker_1, ...
-    for (var i = 0; typeof window['marker_' + i] !== 'undefined'; i++) {
-        var marker = window['marker_' + i];
-        var data = marker.customData;
-
-        var lokasiAlternatif = L.latLng(data.lat, data.lng);
-        var jarakMeter = userLocation.distanceTo(lokasiAlternatif);
-        var jarakKm = (jarakMeter / 1000).toFixed(2);
-
-        // Tampilkan ke tabel
-        const cell = document.getElementById("jarak_" + i);
-        if (cell) {
-            cell.innerHTML = `${jarakKm} km`;
-        }
-
-        // Update popup marker
-        marker.bindPopup(`
-            <div class='text-center'>
-                <img src='../assets/img/${data.gambar}' alt='Image' class='img-fluid' style='max-width:100%; height:auto;'><br>
-            </div>
-            <b>${data.nama}</b><br>
-                Jarak Anda: ${jarakKm} km<br>
-                Jarak ke Lok.: ${data.spesifikasi_C1}<br>
-                Biaya Sewa: ${data.spesifikasi_C2}<br>
-                Akses Masuk: ${data.spesifikasi_C3}<br>
-                Tema: ${data.spesifikasi_C4}<br><br>
-                <a target='_blank' href='https://www.google.com/maps/dir/?api=1&destination=${data.lat},${data.lng}' class='btn text-white btn-sm col-12 btn-success'>Lokasi</a>
-        `);
-    }
-}, function(error) {
-    alert("Gagal mengambil lokasi Anda. Pastikan izin lokasi diaktifkan.");
-});
 </script>

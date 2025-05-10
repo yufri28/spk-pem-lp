@@ -13,6 +13,7 @@ class Kriteria{
     {
         return $this->db->query("SELECT * FROM `kriteria`");
     }
+    
     public function tambahKriteria($dataKriteria)
     {
         $cek = $this->db->query("SELECT * FROM kriteria WHERE id_kriteria='".$dataKriteria['id_kriteria']."'");

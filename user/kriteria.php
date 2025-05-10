@@ -48,6 +48,7 @@ if(isset($_POST['edit'])){
 }
 
 $data_Kriteria = $Kriteria->getKriteria();
+$data_SubKriteriaJarak = $Kriteria->getSubKriteriaJarak();
 $dataTema = $Kriteria->getTema();
 
 $id_bobot = mysqli_fetch_assoc($data_Kriteria);
@@ -103,7 +104,7 @@ Swal.fire({
 
 <div class="container" style="font-family: 'Prompt', sans-serif">
     <div class="row">
-        <div class="d-xxl-flex">
+        <div class="d-flex">
             <div class="col-xxl-3 mb-xxl-3 mt-5">
                 <div class="card">
                     <div class="card-header bg-primary">
@@ -113,6 +114,8 @@ Swal.fire({
                     </div>
                     <form method="post" action="./hasil.php">
                         <div class="card-body">
+                            <input type="hidden" name="user_lat" id="user_lat">
+                            <input type="hidden" name="user_lng" id="user_lng">
                             <div class="mb-3 mt-3">
                                 <label for="prioritas_1" class="form-label">Prioritas 1</label>
                                 <select class="form-select" id="prioritas_1" name="prioritas_1"
@@ -204,6 +207,33 @@ Swal.fire({
                         </div>
                     </div>
                 </div>
+                <div class="card mt-4">
+                    <div class="card-header bg-primary text-white">DAFTAR JARAK</div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered nowrap" style="width:100%" id="table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">No</th>
+                                        <th scope="col">Jarak lokasi dari titik pengguna</th>
+                                        <th scope="col">Spesifikasi</th>
+                                        <th scope="col">Nilai</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="table-group-divider">
+                                    <?php foreach ($data_SubKriteriaJarak as $key => $sub_jarak):?>
+                                    <tr>
+                                        <th scope="row"><?=$key+1;?></th>
+                                        <td><?=$sub_jarak['nama_sub_kriteria'];?></td>
+                                        <td><?=$sub_jarak['spesifikasi'];?></td>
+                                        <td><?=$sub_jarak['bobot_sub_kriteria'];?></td>
+                                    </tr>
+                                    <?php endforeach;?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -261,5 +291,13 @@ $(document).ready(function() {
             }
         });
     });
+});
+</script>
+<script>
+navigator.geolocation.getCurrentPosition(function(position) {
+    document.getElementById('user_lat').value = position.coords.latitude;
+    document.getElementById('user_lng').value = position.coords.longitude;
+}, function(error) {
+    alert("Gagal mendapatkan lokasi. Pastikan izin lokasi diaktifkan.");
 });
 </script>

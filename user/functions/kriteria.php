@@ -13,6 +13,10 @@ class Kriteria{
     {
         return $this->db->query("SELECT * FROM `kriteria` JOIN bobot_kriteria ON bobot_kriteria.f_id_user = '$id_user'");
     }
+    public function getSubKriteriaJarak()
+    {
+        return $this->db->query("SELECT `sub_kriteria`.`nama_sub_kriteria`, `sub_kriteria`.`spesifikasi`, `sub_kriteria`.`bobot_sub_kriteria` FROM `sub_kriteria` JOIN `kriteria` ON `kriteria`.`id_kriteria`= `sub_kriteria`.`f_id_kriteria` WHERE `kriteria`.`id_kriteria`='C1';");
+    }
     public function getKriteria()
     {
         return $this->db->query("SELECT * FROM `kriteria`");

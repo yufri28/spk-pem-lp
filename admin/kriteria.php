@@ -33,6 +33,7 @@ if(isset($_POST['hapus'])){
     $Kriteria->hapusKriteria($id_kriteria);
 }
 $data_Kriteria = $Kriteria->getKriteria();
+// $data_KriteriaJarak = $Kriteria->getSubKriteriaJarak();
 ?>
 <?php if (isset($_SESSION['success'])): ?>
 <script>
