@@ -1,37 +1,47 @@
-<?php 
-$kriteria = ["Jarak ke Lok", "Biaya Sewa", "Akses", "Tema"];
-if(isset($_POST['prioritas_1'])){
-    echo "<option value=''>-- Pilih prioritas 2 --</option>";
-    $selectedOptions = $_POST['prioritas_1']; 
-    $filteredOptions = array_diff($kriteria, $selectedOptions);
-    foreach ($filteredOptions as $option) {
-        echo "<option value='$option'>$option</option>";
+<?php
+require_once '../../config.php';
+
+$koneksi = connectDatabase();
+
+// Query ambil id_kriteria dan nama_kriteria
+$query = "SELECT id_kriteria, nama_kriteria FROM kriteria";
+$result = $koneksi->query($query);
+
+if (!$result) {
+    die("Query error: " . $koneksi->error);
+}
+
+$allKriteria = [];
+while ($row = $result->fetch_assoc()) {
+    $allKriteria[] = [
+        'id_kriteria' => $row['id_kriteria'],
+        'nama' => $row['nama_kriteria']
+    ];
+}
+
+// Ambil data prioritas yang sudah dipilih dari POST (misal array id_kriteria)
+$selectedPrioritas = [];
+if (isset($_POST['prioritas'])) {
+    $selectedPrioritas = $_POST['prioritas'];
+    if (!is_array($selectedPrioritas)) {
+        $selectedPrioritas = [$selectedPrioritas];
     }
 }
 
-if(isset($_POST['prioritas_2'])){
-    echo "<option value=''>-- Pilih prioritas 3 --</option>";
-    $selectedOptions = $_POST['prioritas_2']; 
-    $filteredOptions = array_diff($kriteria, $selectedOptions);
-    foreach ($filteredOptions as $option) {
-        echo "<option value='$option'>$option</option>";
-    }
-}
-if(isset($_POST['prioritas_3'])){
-    echo "<option value=''>-- Pilih prioritas 4 -</option>";
-    $selectedOptions = $_POST['prioritas_3']; 
-    $filteredOptions = array_diff($kriteria, $selectedOptions);
-    foreach ($filteredOptions as $option) {
-        echo "<option value='$option'>$option</option>";
-    }
-}
-if(isset($_POST['prioritas_4'])){
-    echo "<option value=''>-- Pilih prioritas 5 --</option>";
-    $selectedOptions = $_POST['prioritas_4']; 
-    $filteredOptions = array_diff($kriteria, $selectedOptions);
-    foreach ($filteredOptions as $option) {
-        echo "<option value='$option'>$option</option>";
-    }
-}
+// Karena $allKriteria adalah array of array, kita buat dulu array id_kriteria untuk filtering
+$allIds = array_column($allKriteria, 'id_kriteria');
 
+// Filter: ambil id_kriteria yang belum dipilih
+$availableIds = array_diff($allIds, $selectedPrioritas);
+
+// Filter $allKriteria berdasarkan $availableIds supaya dropdown hanya menampilkan opsi yang belum dipilih
+$availableOptions = array_filter($allKriteria, function($kriteria) use ($availableIds) {
+    return in_array($kriteria['id_kriteria'], $availableIds);
+});
+
+// Output opsi dropdown
+echo '<option value="">-- Pilih prioritas --</option>';
+foreach ($availableOptions as $option) {
+    echo '<option value="' . htmlspecialchars($option['id_kriteria']) . '">' . htmlspecialchars($option['nama']) . '</option>';
+}
 ?>

@@ -5,66 +5,24 @@ $_SESSION['menu'] = 'kriteria';
 require_once './../includes/header.php';
 require_once './functions/kriteria.php';
 
-if(isset($_POST['simpan'])){
-    $prioritas1 = $_POST['prioritas_1'];
-    $prioritas2 = $_POST['prioritas_2'];
-    $prioritas3 = $_POST['prioritas_3'];
-    $prioritas4 = $_POST['prioritas_4'];
-    
-
-    // $dataTampung = [
-    //     $prioritas1,$prioritas2,$prioritas3,$prioritas4,$prioritas5
-    // ];
-
-
-    $dataBobotKriteria = [
-        $prioritas1 => 0.3,
-        $prioritas2 => 0.2,
-        $prioritas3 => 0.2,
-        $prioritas4 => 0.2
-    ];
-    // $Kriteria->tambahTampung($dataTampung);
-    $tambahBobotKriteria = $Kriteria->tambahBobotKriteria($dataBobotKriteria);
-}
-if(isset($_POST['edit'])){
-    $id = $_POST['id_tampung'];
-    $id_bobot = $_POST['id_bobot'];
-    $prioritas1 = $_POST['prioritas_1'];
-    $prioritas2 = $_POST['prioritas_2'];
-    $prioritas3 = $_POST['prioritas_3'];
-    $prioritas4 = $_POST['prioritas_4'];
-   
-    // $dataTampung = [
-    //     $prioritas1,$prioritas2,$prioritas3,$prioritas4,$prioritas5
-    // ];
-    $dataBobotKriteria = [
-        $prioritas1 => 0.3,
-        $prioritas2 => 0.2,
-        $prioritas3 => 0.2,
-        $prioritas4 => 0.2,
-    ];
-    $tambahBobotKriteria = $Kriteria->editBobotKriteria($id_bobot,$dataBobotKriteria);
-    // $Kriteria->editTampung($id,$dataTampung);
-}
-
 $data_Kriteria = $Kriteria->getKriteria();
 $data_SubKriteriaJarak = $Kriteria->getSubKriteriaJarak();
 $dataTema = $Kriteria->getTema();
 
 $id_bobot = mysqli_fetch_assoc($data_Kriteria);
-$dataKriteria = [
-    "Jarak ke Lok", "Biaya Sewa", "Akses", "Tema"
-];
+//Perintah 1. Ambil datanya dari tabel kriteria
+// $dataKriteria = [
+//     "Jarak ke Lok", "Biaya Sewa", "Akses", "Tema"
+// ];
 
-
-// $stmt = $koneksi->prepare("SELECT * FROM bobot_kriteria WHERE f_id_user=?");
-// $stmt->bind_param("i", $id_user);
-// $stmt->execute();
-// $result = $stmt->get_result();
-// $stmt->close();
-
-// $dataTampung = $koneksi->query("SELECT * FROM tabel_tampung");
-
+$dataKriteria = [];
+foreach ($data_Kriteria as $key => $row) {
+    $dataKriteria[] = 
+    [
+        'id_kriteria' => $row['id_kriteria'],
+        'nama' => $row['nama_kriteria']
+    ];
+}
 
 ?>
 <!-- Tampilkan pesan sukses atau error jika sesi tersebut diatur -->
@@ -116,7 +74,8 @@ Swal.fire({
                         <div class="card-body">
                             <input type="hidden" name="user_lat" id="user_lat">
                             <input type="hidden" name="user_lng" id="user_lng">
-                            <div class="mb-3 mt-3">
+                            <!-- Perintah 2. Ubah prioritas ini agar dinamis sesuai dengan jumlah kriteria yang user input -->
+                            <!-- <div class="mb-3 mt-3">
                                 <label for="prioritas_1" class="form-label">Prioritas 1</label>
                                 <select class="form-select" id="prioritas_1" name="prioritas_1"
                                     aria-label="Default select example" required>
@@ -160,13 +119,29 @@ Swal.fire({
                                     </option>
                                     <?php endforeach;?>
                                 </select>
+                            </div> -->
+                            <?php $jumlah_kriteria = count($dataKriteria); ?>
+                            <?php for ($i=1; $i <= $jumlah_kriteria; $i++): ?>
+                            <div class="mb-3 mt-3">
+                                <label for="prioritas_<?= $i ?>" class="form-label">Prioritas <?= $i ?></label>
+                                <select class="form-select prioritas-select" id="prioritas_<?= $i ?>" name="prioritas[]"
+                                    required>
+                                    <option value="">-- Pilih prioritas <?= $i ?> --</option>
+                                    <?php foreach ($dataKriteria as $kriteria): ?>
+                                    <option value="<?= $kriteria['id_kriteria']; ?>">
+                                        <?= htmlspecialchars($kriteria['nama']); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
                             </div>
+                            <?php endfor; ?>
+
+
                             <div class="mb-3 mt-3">
                                 <label for="tema" class="form-label">Tema</label>
                                 <select class="form-select" id="tema" name="tema">
                                     <option value="">-- Pilih Tema --</option>
                                     <?php foreach($dataTema as $tema):?>
-                                    <option value="<?=$tema['id_sub_kriteria'];?>">
+                                    <option value="<?=$tema['spesifikasi'];?>">
                                         <?=$tema['spesifikasi'];?>
                                     </option>
                                     <?php endforeach;?>
@@ -207,6 +182,7 @@ Swal.fire({
                         </div>
                     </div>
                 </div>
+                <?php if(!empty($data_SubKriteriaJarak)): ?>
                 <div class="card mt-4">
                     <div class="card-header bg-primary text-white">DAFTAR JARAK</div>
                     <div class="card-body">
@@ -234,6 +210,7 @@ Swal.fire({
                         </div>
                     </div>
                 </div>
+                <?php endif;?>
             </div>
         </div>
     </div>
@@ -242,56 +219,81 @@ Swal.fire({
 require_once './../includes/footer.php';
 ?>
 
+<!-- Perintah 3. sesuikan juga agar sesuai dengan jumlah kriteria yang diinputkan -->
 <script>
 $(document).ready(function() {
-    $("#prioritas_1").change(function() {
-        var prioritas_1 = $("#prioritas_1").val();
-        $.ajax({
-            type: 'POST',
-            url: "./functions/pilihan.php",
-            data: {
-                prioritas_1: [prioritas_1]
-            },
-            cache: false,
-            success: function(msg) {
-                $("#prioritas_2").html(msg);
-            }
-        });
-    });
+    const jumlah_kriteria = <?= $jumlah_kriteria ?>;
 
-    $("#prioritas_2").change(function() {
-        var prioritas_1 = $("#prioritas_1").val();
-        var prioritas_2 = $("#prioritas_2").val();
-        $.ajax({
-            type: 'POST',
-            url: "./functions/pilihan.php",
-            data: {
-                prioritas_2: [prioritas_1, prioritas_2]
-            },
-            cache: false,
-            success: function(msg) {
-                $("#prioritas_3").html(msg);
+    for (let i = 1; i < jumlah_kriteria; i++) {
+        $("#prioritas_" + i).change(function() {
+            let selected = [];
+            for (let j = 1; j <= i; j++) {
+                selected.push($("#prioritas_" + j).val());
             }
+            $.ajax({
+                type: 'POST',
+                url: "./functions/pilihan.php",
+                data: {
+                    prioritas: selected
+                },
+                cache: false,
+                success: function(msg) {
+                    $("#prioritas_" + (i + 1)).html(msg);
+                }
+            });
         });
-    });
-
-    $("#prioritas_3").change(function() {
-        var prioritas_1 = $("#prioritas_1").val();
-        var prioritas_2 = $("#prioritas_2").val();
-        var prioritas_3 = $("#prioritas_3").val();
-        $.ajax({
-            type: 'POST',
-            url: "./functions/pilihan.php",
-            data: {
-                prioritas_3: [prioritas_1, prioritas_2, prioritas_3]
-            },
-            cache: false,
-            success: function(msg) {
-                $("#prioritas_4").html(msg);
-            }
-        });
-    });
+    }
 });
+
+// $(document).ready(function() {
+//     $("#prioritas_1").change(function() {
+//         var prioritas_1 = $("#prioritas_1").val();
+//         $.ajax({
+//             type: 'POST',
+//             url: "./functions/pilihan.php",
+//             data: {
+//                 prioritas_1: [prioritas_1]
+//             },
+//             cache: false,
+//             success: function(msg) {
+//                 $("#prioritas_2").html(msg);
+//             }
+//         });
+//     });
+
+//     $("#prioritas_2").change(function() {
+//         var prioritas_1 = $("#prioritas_1").val();
+//         var prioritas_2 = $("#prioritas_2").val();
+//         $.ajax({
+//             type: 'POST',
+//             url: "./functions/pilihan.php",
+//             data: {
+//                 prioritas_2: [prioritas_1, prioritas_2]
+//             },
+//             cache: false,
+//             success: function(msg) {
+//                 $("#prioritas_3").html(msg);
+//             }
+//         });
+//     });
+
+//     $("#prioritas_3").change(function() {
+//         var prioritas_1 = $("#prioritas_1").val();
+//         var prioritas_2 = $("#prioritas_2").val();
+//         var prioritas_3 = $("#prioritas_3").val();
+//         $.ajax({
+//             type: 'POST',
+//             url: "./functions/pilihan.php",
+//             data: {
+//                 prioritas_3: [prioritas_1, prioritas_2, prioritas_3]
+//             },
+//             cache: false,
+//             success: function(msg) {
+//                 $("#prioritas_4").html(msg);
+//             }
+//         });
+//     });
+// });
 </script>
 <script>
 navigator.geolocation.getCurrentPosition(function(position) {

@@ -10,10 +10,12 @@ if(isset($_POST['simpan'])){
     $id_kriteria = $_POST['id_kriteria'];
     $nama_kriteria = $_POST['nama_kriteria'];
     $jenis_kriteria = $_POST['jenis_kriteria'];
+    $bobot_kriteria = $_POST['bobot_kriteria'];
     $dataKriteria = [
        "id_kriteria" => $id_kriteria,
        "nama_kriteria" => $nama_kriteria,
-       "jenis_kriteria" => $jenis_kriteria
+       "jenis_kriteria" => $jenis_kriteria,
+       "bobot_kriteria" => $bobot_kriteria
     ];
     $Kriteria->tambahKriteria($dataKriteria);
 }
@@ -21,10 +23,13 @@ if(isset($_POST['edit'])){
     $id_kriteria = $_POST['id_kriteria'];
     $nama_kriteria = $_POST['nama_kriteria'];
     $jenis_kriteria = $_POST['jenis_kriteria'];
+    $bobot_kriteria = $_POST['bobot_kriteria'];
     $dataKriteria = [
        "id_kriteria" => $id_kriteria,
        "nama_kriteria" => $nama_kriteria,
-       "jenis_kriteria" => $jenis_kriteria
+       "jenis_kriteria" => $jenis_kriteria,
+       "bobot_kriteria" => $bobot_kriteria
+       
     ];
     $Kriteria->editKriteria($dataKriteria);
 }
@@ -33,7 +38,6 @@ if(isset($_POST['hapus'])){
     $Kriteria->hapusKriteria($id_kriteria);
 }
 $data_Kriteria = $Kriteria->getKriteria();
-// $data_KriteriaJarak = $Kriteria->getSubKriteriaJarak();
 ?>
 <?php if (isset($_SESSION['success'])): ?>
 <script>
@@ -62,8 +66,8 @@ Swal.fire({
 <div class="container mb-5 pt-5" style="font-family: 'Prompt', sans-serif">
     <div class="row">
         <div class="d-xxl-flex">
-            <?php if(mysqli_num_rows($data_Kriteria) < 4) :?>
-            <div class="col-xxl-3 mb-xxl-3 mt-5">
+
+            <div class="col-xxl-4 mb-xxl-3 mt-5">
                 <div class="card">
                     <div class="card-header bg-primary">
                         <h5 class="text-center text-white pt-2 col-12 btn-outline-primary">
@@ -76,6 +80,7 @@ Swal.fire({
                                 <label for="id_kriteria" class="form-label">Kode Kriteria</label>
                                 <input class="form-control" maxlength="2" required name="id_kriteria" type="text"
                                     placeholder="Kode Kriteria" aria-label="default input example">
+                                <small><i>Contoh C1 dst. Harus diawali huruf C dan angka urutan.</i></small>
                             </div>
                             <div class="mb-3 mt-3">
                                 <label for="nama_kriteria" class="form-label">Nama Kriteria</label>
@@ -89,8 +94,13 @@ Swal.fire({
                                     <option value="">-- Pilih Jenis --</option>
                                     <option value="Benefit">Benefit</option>
                                     <option value="Cost">Cost</option>
-
                                 </select>
+                            </div>
+                            <div class="mb-3 mt-3">
+                                <label for="bobot_kriteria" class="form-label">Bobot Kriteria</label>
+                                <input class="form-control" required step="any" name="bobot_kriteria" type="number"
+                                    aria-label="default input example">
+                                <small><i>Bisa diisi nilai decimal (contoh 0.1)</i></small>
                             </div>
                             <button type="submit" name="simpan" class="btn col-12 btn-outline-primary">
                                 Simpan
@@ -99,8 +109,7 @@ Swal.fire({
                     </form>
                 </div>
             </div>
-            <?php endif;?>
-            <div class="<?= mysqli_num_rows($data_Kriteria) < 4 ? "":"col-xxl-12 ms-xxl-2"; ?> mt-5">
+            <div class="col-xxl-8 ms-xxl-2 mt-5">
                 <div class="card">
                     <div class="card-header bg-primary text-white">DAFTAR KRITERIA</div>
                     <div class="card-body">
@@ -112,7 +121,8 @@ Swal.fire({
                                         <th scope="col">Kode</th>
                                         <th scope="col">Nama</th>
                                         <th scope="col">Sifat</th>
-                                        <!-- <th scope="col">Aksi</th> -->
+                                        <th scope="col">Bobot</th>
+                                        <th scope="col">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody class="table-group-divider">
@@ -123,7 +133,8 @@ Swal.fire({
                                         <th scope="row"><?=$kriteria['id_kriteria'];?></th>
                                         <td><?=$kriteria['nama_kriteria'];?></td>
                                         <td><?=$kriteria['jenis_kriteria'];?></td>
-                                        <!-- <td>
+                                        <td><?=$kriteria['bobot_kriteria'];?></td>
+                                        <td>
                                             <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
                                                 data-bs-target="#edit<?=$kriteria['id_kriteria'];?>">
                                                 Edit
@@ -132,7 +143,7 @@ Swal.fire({
                                                 data-bs-target="#hapus<?=$kriteria['id_kriteria'];?>">
                                                 Hapus
                                             </button>
-                                        </td> -->
+                                        </td>
                                     </tr>
                                     <?php endforeach;?>
                                 </tbody>
@@ -184,43 +195,50 @@ Swal.fire({
                                 </select>
                             </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" name="edit" class="btn btn-outline-primary">
-                                Simpan
-                            </button>
+                        <div class="mb-3 mt-3">
+                            <label for="bobot_kriteria" class="form-label">Bobot Kriteria</label>
+                            <input class="form-control" value="<?= $kriteria['bobot_kriteria']; ?>" required
+                                name="bobot_kriteria" type="number" step="any" aria-label="default input example">
+                            <small><i>Bisa diisi nilai decimal (contoh 0.1)</i></small>
                         </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    <?php endforeach;?>
-    <?php foreach ($data_Kriteria as $kriteria):?>
-    <div class="modal fade" id="hapus<?=$kriteria['id_kriteria'];?>" tabindex="-1" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form method="post" action="">
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="exampleModalLabel">Hapus Kriteria</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <input type="hidden" name="id_kriteria" value="<?=$kriteria['id_kriteria'];?>">
-                    <div class="modal-body">
-                        <p>Anda yakin ingin menghapus kriteria <strong>
-                                <?=$kriteria['nama_kriteria'];?></strong> ?</p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" name="hapus" class="btn btn-outline-primary">
-                            Hapus
+                        <button type="submit" name="edit" class="btn btn-outline-primary">
+                            Simpan
                         </button>
                     </div>
-                </form>
             </div>
+            </form>
         </div>
     </div>
+</div>
+<?php endforeach;?>
+<?php foreach ($data_Kriteria as $kriteria):?>
+<div class="modal fade" id="hapus<?=$kriteria['id_kriteria'];?>" tabindex="-1" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Hapus Kriteria</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <input type="hidden" name="id_kriteria" value="<?=$kriteria['id_kriteria'];?>">
+                <div class="modal-body">
+                    <p>Anda yakin ingin menghapus kriteria <strong>
+                            <?=$kriteria['nama_kriteria'];?></strong> ?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" name="hapus" class="btn btn-outline-primary">
+                        Hapus
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 </div>
 
 <?php endforeach;?>

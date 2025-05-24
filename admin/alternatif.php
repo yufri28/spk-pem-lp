@@ -6,6 +6,7 @@ require_once './header.php';
 require_once './functions/alternatif.php';
 
 $dataAlternatif = $getDataAlternatif->getDataAlternatif();
+
 // if(isset($_POST['simpan'])){
 //     $namaAlternatif = htmlspecialchars($_POST['nama_alternatif']);
 //     $latitude = htmlspecialchars($_POST['latitude']);
@@ -19,7 +20,12 @@ $dataAlternatif = $getDataAlternatif->getDataAlternatif();
 //     // Handle file upload
 //     $gambar = $_FILES['gambar']['name'];
 //     $tempName = $_FILES['gambar']['tmp_name'];
-//     $folder = "../assets/img/" . basename($gambar);
+
+//     // Enkripsi nama file gambar
+//     $ext = pathinfo($gambar, PATHINFO_EXTENSION); // Mendapatkan ekstensi file
+//     $gambarEnkripsi = md5($gambar . time()) . '.' . $ext; // Membuat nama file terenkripsi
+
+//     $folder = "../assets/img/" . $gambarEnkripsi;
 
 //     if (move_uploaded_file($tempName, $folder)) {
 //         $dataAlt = [
@@ -27,7 +33,7 @@ $dataAlternatif = $getDataAlternatif->getDataAlternatif();
 //             'latitude' => $latitude,
 //             'longitude' => $longitude,
 //             'alamat' => $alamat,
-//             'gambar' => $gambar // simpan nama file ke database
+//             'gambar' => $gambarEnkripsi // simpan nama file terenkripsi ke database
 //         ];
 //         $dataSubKriteria = [
 //             'C1' => $jarak_lokasi,
@@ -42,6 +48,111 @@ $dataAlternatif = $getDataAlternatif->getDataAlternatif();
 //         $_SESSION['error'] = 'Gagal mengupload gambar.';
 //     }
 // }
+if (isset($_POST['simpan'])) {
+    $namaAlternatif = htmlspecialchars($_POST['nama_alternatif']);
+    $latitude = htmlspecialchars($_POST['latitude']);
+    $longitude = htmlspecialchars($_POST['longitude']);
+    $alamat = htmlspecialchars($_POST['alamat']);
+
+    // Handle file upload
+    $gambar = $_FILES['gambar']['name'];
+    $tempName = $_FILES['gambar']['tmp_name'];
+    $ext = pathinfo($gambar, PATHINFO_EXTENSION);
+    $gambarEnkripsi = md5($gambar . time()) . '.' . $ext;
+    $folder = "../assets/img/" . $gambarEnkripsi;
+
+    if (move_uploaded_file($tempName, $folder)) {
+        $dataAlt = [
+            'nama_alternatif' => $namaAlternatif,
+            'latitude' => $latitude,
+            'longitude' => $longitude,
+            'alamat' => $alamat,
+            'gambar' => $gambarEnkripsi
+        ];
+
+        // Ambil seluruh id_kriteria dari database
+        $getKriteria = $koneksi->query("SELECT id_kriteria FROM kriteria");
+        $dataSubKriteria = [];
+        while ($k = $getKriteria->fetch_assoc()) {
+            $idKriteria = $k['id_kriteria'];
+            if (isset($_POST[$idKriteria])) {
+                $dataSubKriteria[$idKriteria] = htmlspecialchars($_POST[$idKriteria]);
+            }
+        }
+      
+        $getDataAlternatif->tambahAlternatif($dataAlt, $dataSubKriteria);
+
+        
+        
+        $_SESSION['success'] = 'Data berhasil disimpan.';
+    } else {
+        $_SESSION['error'] = 'Gagal mengupload gambar.';
+    }
+}
+
+if (isset($_POST['edit'])) {
+    $id_alternatif = htmlspecialchars($_POST['id_alternatif']);
+    $namaAlternatif = htmlspecialchars($_POST['nama_alternatif']);
+    $latitude = htmlspecialchars($_POST['latitude']);
+    $longitude = htmlspecialchars($_POST['longitude']);
+    $alamat = htmlspecialchars($_POST['alamat']);
+
+    // Ambil data gambar lama dari database
+    $dataAlternatifLama = $getDataAlternatif->getAlternatifById($id_alternatif);
+    $gambarLama = $dataAlternatifLama['gambar'];
+
+    // Handle file upload untuk edit
+    $gambarBaru = $_FILES['gambar']['name'];
+    $tempName = $_FILES['gambar']['tmp_name'];
+
+    if (!empty($gambarBaru)) {
+        $ext = pathinfo($gambarBaru, PATHINFO_EXTENSION);
+        $gambarEnkripsiBaru = md5($gambarBaru . time()) . '.' . $ext;
+        $folder = "../assets/img/" . $gambarEnkripsiBaru;
+
+        if (move_uploaded_file($tempName, $folder)) {
+            if (file_exists("../assets/img/" . $gambarLama) && is_file("../assets/img/" . $gambarLama)) {
+                unlink("../assets/img/" . $gambarLama);
+            }
+
+            $dataAlt = [
+                'id_alternatif' => $id_alternatif,
+                'nama_alternatif' => $namaAlternatif,
+                'latitude' => $latitude,
+                'longitude' => $longitude,
+                'alamat' => $alamat,
+                'gambar' => $gambarEnkripsiBaru
+            ];
+        } else {
+            $_SESSION['error'] = 'Gagal mengupload gambar baru.';
+            return;
+        }
+    } else {
+        $dataAlt = [
+            'id_alternatif' => $id_alternatif,
+            'nama_alternatif' => $namaAlternatif,
+            'latitude' => $latitude,
+            'longitude' => $longitude,
+            'alamat' => $alamat,
+            'gambar' => $gambarLama
+        ];
+    }
+
+    // Ambil seluruh id_kriteria dari database untuk sub kriteria pada edit
+    $getKriteria = $koneksi->query("SELECT id_kriteria FROM kriteria");
+    $dataSubKriteria = [];
+    while ($k = $getKriteria->fetch_assoc()) {
+        $idKriteria = $k['id_kriteria'];
+        if (isset($_POST[$idKriteria])) {
+            $dataSubKriteria[$idKriteria] = htmlspecialchars($_POST[$idKriteria]);
+        }
+    }
+
+    $getDataAlternatif->editAlternatif($dataAlt, $dataSubKriteria);
+    $_SESSION['success'] = 'Data berhasil diupdate!';
+}
+
+
 
 // if (isset($_POST['edit'])) {
 //     $id_alternatif = htmlspecialchars($_POST['id_alternatif']);
@@ -61,13 +172,16 @@ $dataAlternatif = $getDataAlternatif->getDataAlternatif();
 //     // Handle file upload for edit
 //     $gambarBaru = $_FILES['gambar']['name'];
 //     $tempName = $_FILES['gambar']['tmp_name'];
-//     $folder = "../assets/img/" . basename($gambarBaru);
 
 //     if (!empty($gambarBaru)) {
 //         // Jika ada gambar baru yang diupload
+//         $ext = pathinfo($gambarBaru, PATHINFO_EXTENSION); // Mendapatkan ekstensi file
+//         $gambarEnkripsiBaru = md5($gambarBaru . time()) . '.' . $ext; // Membuat nama file terenkripsi baru
+//         $folder = "../assets/img/" . $gambarEnkripsiBaru;
+
 //         if (move_uploaded_file($tempName, $folder)) {
 //             // Hapus gambar lama jika ada
-//             if (file_exists("../assets/img/" . $gambarLama)) {
+//             if (file_exists("../assets/img/" . $gambarLama) && is_file("../assets/img/" . $gambarLama)) {
 //                 unlink("../assets/img/" . $gambarLama);
 //             }
 
@@ -78,7 +192,7 @@ $dataAlternatif = $getDataAlternatif->getDataAlternatif();
 //                 'latitude' => $latitude,
 //                 'longitude' => $longitude,
 //                 'alamat' => $alamat,
-//                 'gambar' => $gambarBaru // simpan nama file baru ke database
+//                 'gambar' => $gambarEnkripsiBaru // simpan nama file baru terenkripsi ke database
 //             ];
 //         } else {
 //             $_SESSION['error'] = 'Gagal mengupload gambar baru.';
@@ -100,110 +214,6 @@ $dataAlternatif = $getDataAlternatif->getDataAlternatif();
 //     $getDataAlternatif->editAlternatif($dataAlt, $dataSubKriteria);
 //     $_SESSION['success'] = 'Data berhasil diupdate!';
 // }
-
-
-if(isset($_POST['simpan'])){
-    $namaAlternatif = htmlspecialchars($_POST['nama_alternatif']);
-    $latitude = htmlspecialchars($_POST['latitude']);
-    $longitude = htmlspecialchars($_POST['longitude']);
-    $alamat = htmlspecialchars($_POST['alamat']);
-    $jarak_lokasi = htmlspecialchars($_POST['jarak_lokasi']);
-    $biaya = htmlspecialchars($_POST['biaya']);
-    $akses = htmlspecialchars($_POST['akses']);
-    $tema = htmlspecialchars($_POST['tema']);
-
-    // Handle file upload
-    $gambar = $_FILES['gambar']['name'];
-    $tempName = $_FILES['gambar']['tmp_name'];
-
-    // Enkripsi nama file gambar
-    $ext = pathinfo($gambar, PATHINFO_EXTENSION); // Mendapatkan ekstensi file
-    $gambarEnkripsi = md5($gambar . time()) . '.' . $ext; // Membuat nama file terenkripsi
-
-    $folder = "../assets/img/" . $gambarEnkripsi;
-
-    if (move_uploaded_file($tempName, $folder)) {
-        $dataAlt = [
-            'nama_alternatif' => $namaAlternatif,
-            'latitude' => $latitude,
-            'longitude' => $longitude,
-            'alamat' => $alamat,
-            'gambar' => $gambarEnkripsi // simpan nama file terenkripsi ke database
-        ];
-        $dataSubKriteria = [
-            'C1' => $jarak_lokasi,
-            'C2' => $biaya,
-            'C3' => $akses,
-            'C4' => $tema
-        ];
-
-        $getDataAlternatif->tambahAlternatif($dataAlt, $dataSubKriteria);
-        $_SESSION['success'] = 'Gambar berhasil diupload!';
-    } else {
-        $_SESSION['error'] = 'Gagal mengupload gambar.';
-    }
-}
-
-if (isset($_POST['edit'])) {
-    $id_alternatif = htmlspecialchars($_POST['id_alternatif']);
-    $namaAlternatif = htmlspecialchars($_POST['nama_alternatif']);
-    $latitude = htmlspecialchars($_POST['latitude']);
-    $longitude = htmlspecialchars($_POST['longitude']);
-    $alamat = htmlspecialchars($_POST['alamat']);
-    $jarak_lokasi = htmlspecialchars($_POST['jarak_lokasi']);
-    $biaya = htmlspecialchars($_POST['biaya']);
-    $akses = htmlspecialchars($_POST['akses']);
-    $tema = htmlspecialchars($_POST['tema']);
-
-    // Ambil data gambar lama dari database
-    $dataAlternatifLama = $getDataAlternatif->getAlternatifById($id_alternatif);
-    $gambarLama = $dataAlternatifLama['gambar']; // Nama gambar lama yang disimpan di database
-
-    // Handle file upload for edit
-    $gambarBaru = $_FILES['gambar']['name'];
-    $tempName = $_FILES['gambar']['tmp_name'];
-
-    if (!empty($gambarBaru)) {
-        // Jika ada gambar baru yang diupload
-        $ext = pathinfo($gambarBaru, PATHINFO_EXTENSION); // Mendapatkan ekstensi file
-        $gambarEnkripsiBaru = md5($gambarBaru . time()) . '.' . $ext; // Membuat nama file terenkripsi baru
-        $folder = "../assets/img/" . $gambarEnkripsiBaru;
-
-        if (move_uploaded_file($tempName, $folder)) {
-            // Hapus gambar lama jika ada
-            if (file_exists("../assets/img/" . $gambarLama) && is_file("../assets/img/" . $gambarLama)) {
-                unlink("../assets/img/" . $gambarLama);
-            }
-
-            // Update data dengan gambar baru
-            $dataAlt = [
-                'id_alternatif' => $id_alternatif,
-                'nama_alternatif' => $namaAlternatif,
-                'latitude' => $latitude,
-                'longitude' => $longitude,
-                'alamat' => $alamat,
-                'gambar' => $gambarEnkripsiBaru // simpan nama file baru terenkripsi ke database
-            ];
-        } else {
-            $_SESSION['error'] = 'Gagal mengupload gambar baru.';
-            return;
-        }
-    } else {
-        // Jika tidak ada gambar baru, tetap gunakan gambar lama
-        $dataAlt = [
-            'id_alternatif' => $id_alternatif,
-            'nama_alternatif' => $namaAlternatif,
-            'latitude' => $latitude,
-            'longitude' => $longitude,
-            'alamat' => $alamat,
-            'gambar' => $gambarLama // tetap gunakan gambar lama
-        ];
-    }
-
-    $dataSubKriteria = [$jarak_lokasi, $biaya, $akses, $tema];
-    $getDataAlternatif->editAlternatif($dataAlt, $dataSubKriteria);
-    $_SESSION['success'] = 'Data berhasil diupdate!';
-}
 
 
 
@@ -231,10 +241,24 @@ if (isset($_POST['hapus'])) {
 }
 
 
-$getSubJarakLokasi = $getDataAlternatif->getSubJarakLokasi();
-$getSubBiaya = $getDataAlternatif->getSubBiaya();
-$getSubAkses = $getDataAlternatif->getSubAkses();
-$getSubTema = $getDataAlternatif->getSubTema();
+// $getSubJarakLokasi = $getDataAlternatif->getSubJarakLokasi();
+// $getSubBiaya = $getDataAlternatif->getSubBiaya();
+// $getSubAkses = $getDataAlternatif->getSubAkses();
+// $getSubTema = $getDataAlternatif->getSubTema();
+
+// Ambil semua kriteria
+$getKriteria = $koneksi->query("SELECT * FROM kriteria");
+
+// Ambil semua sub kriteria dan kelompokkan berdasarkan f_id_kriteria
+$getSubKriteria = $koneksi->query("SELECT * FROM sub_kriteria");
+$subKriteriaGrouped = [];
+
+while ($row = $getSubKriteria->fetch_assoc()) {
+    $subKriteriaGrouped[$row['f_id_kriteria']][] = $row;
+}
+
+
+
 ?>
 <?php if (isset($_SESSION['success'])): ?>
 <script>
@@ -304,7 +328,31 @@ Swal.fire({
                                 <input type="file" name="gambar" required class="form-control" id="gambar"
                                     placeholder="Gambar" />
                             </div>
+                            <?php while ($kriteria = $getKriteria->fetch_assoc()): ?>
                             <div class="mb-3 mt-3">
+                                <label for="<?= $kriteria['id_kriteria']; ?>" class="form-label">
+                                    <?= htmlspecialchars($kriteria['nama_kriteria']); ?>
+                                </label>
+                                <select class="form-select" name="<?= $kriteria['id_kriteria']; ?>" required>
+                                    <option value="">-- Pilih <?= htmlspecialchars($kriteria['nama_kriteria']); ?> --
+                                    </option>
+                                    <?php 
+                                        $idKriteria = $kriteria['id_kriteria'];
+                                        if (isset($subKriteriaGrouped[$idKriteria])):
+                                            foreach ($subKriteriaGrouped[$idKriteria] as $sub): 
+                                    ?>
+                                    <option value="<?= $sub['id_sub_kriteria']; ?>">
+                                        <?= $sub['nama_sub_kriteria']; ?> | <?= $sub['spesifikasi']; ?>
+                                    </option>
+                                    <?php 
+                                            endforeach;
+                                        endif;
+                                    ?>
+                                </select>
+                            </div>
+                            <?php endwhile; ?>
+
+                            <!-- <div class="mb-3 mt-3">
                                 <label for="jarak_lokasi" class="form-label">Jarak Lokasi</label>
                                 <select class="form-select" name="jarak_lokasi" required
                                     aria-label="Default select example">
@@ -345,7 +393,8 @@ Swal.fire({
                                         <?=$tema['nama_sub_kriteria'];?> | <?=$tema['spesifikasi'];?></option>
                                     <?php endforeach;?>
                                 </select>
-                            </div>
+                            </div> -->
+
                             <button type="submit" name="simpan" class="btn col-12 btn-outline-primary">
                                 Simpan
                             </button>
@@ -368,27 +417,36 @@ Swal.fire({
                                         <th scope="col">Longitude</th>
                                         <th scope="col">Alamat</th>
                                         <th scope="col">Gambar</th>
-                                        <th scope="col">Jarak lokasi</th>
-                                        <th scope="col">Biaya sewa</th>
-                                        <th scope="col">Akses</th>
-                                        <th scope="col">Tema</th>
+                                        <?php foreach ($getKriteria as $k): ?>
+                                        <th><?= htmlspecialchars($k['nama_kriteria']); ?></th>
+                                        <?php endforeach; ?>
                                         <th scope="col">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody class="table-group-divider">
+                                    <?php if(!empty($dataAlternatif)):?>
+                                    <?php $no = 1; ?>
                                     <?php foreach ($dataAlternatif as $i => $alternatif):?>
                                     <tr>
-                                        <th scope="row"><?=$i+1;?></th>
-                                        <td><?=$alternatif['nama_alternatif'];?></td>
-                                        <td><?=$alternatif['latitude'];?></td>
-                                        <td><?=$alternatif['longitude'];?></td>
-                                        <td><?=$alternatif['alamat'];?></td>
+                                        <th scope="row"><?=$no++;?></th>
+                                        <td><?=$alternatif['nama_alternatif']??'';?></td>
+                                        <td><?=$alternatif['latitude']??'';?></td>
+                                        <td><?=$alternatif['longitude']??'';?></td>
+                                        <td><?=$alternatif['alamat']??'';?></td>
                                         <td><img style="width:60px; height:60px;"
                                                 src="../assets/img/<?=$alternatif['gambar'];?>" alt=""></td>
-                                        <td><?=$alternatif['nama_C1'];?></td>
+                                        <?php foreach ($getKriteria as $k): ?>
+                                        <?php if ($alternatif['nama_' . $k['id_kriteria']] == 'Tema'): ?>
+                                        <td><?= $alternatif['tema_' . $k['id_kriteria']]??'-'; ?>
+                                        </td>
+                                        <?php else: ?>
+                                        <td><?= $alternatif['nama_' . $k['id_kriteria']]??'-'; ?>
+                                            <?php endif; ?>
+                                            <?php endforeach; ?>
+                                            <!-- <td><?=$alternatif['nama_C1'];?></td>
                                         <td><?=$alternatif['nama_C2'];?></td>
                                         <td><?=$alternatif['nama_C3'];?></td>
-                                        <td><?=$alternatif['nama_C4'];?></td>
+                                        <td><?=$alternatif['nama_C4'];?></td> -->
                                         <td>
 
                                             <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
@@ -404,6 +462,7 @@ Swal.fire({
                                         </td>
                                     </tr>
                                     <?php endforeach;?>
+                                    <?php endif;?>
                                 </tbody>
                             </table>
                         </div>
@@ -413,109 +472,104 @@ Swal.fire({
         </div>
     </div>
 </div>
-
-<?php foreach ($dataAlternatif as $alternatif):?>
-<div class="modal fade" id="edit<?=$alternatif['id_alternatif'];?>" tabindex="-1" aria-labelledby="exampleModalLabel"
-    aria-hidden="true">
+<?php foreach ($dataAlternatif as $alternatif): ?>
+<div class="modal fade" id="edit<?= $alternatif['id_alternatif']; ?>" tabindex="-1"
+    aria-labelledby="exampleModalLabel<?= $alternatif['id_alternatif']; ?>" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <form method="post" action="" enctype="multipart/form-data">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Modal edit</h1>
+                    <h1 class="modal-title fs-5" id="exampleModalLabel<?= $alternatif['id_alternatif']; ?>">Modal edit
+                    </h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <input type="hidden" name="id_alternatif" value="<?=$alternatif['id_alternatif'];?>">
+                <input type="hidden" name="id_alternatif" value="<?= $alternatif['id_alternatif']; ?>">
                 <div class="modal-body">
                     <div class="card-body">
                         <div class="mb-3 mt-3">
-                            <label for="exampleFormControlInput1" class="form-label">Nama Alternatif</label>
+                            <label for="nama_alternatif_<?= $alternatif['id_alternatif']; ?>" class="form-label">Nama
+                                Alternatif</label>
                             <input type="text" class="form-control" required name="nama_alternatif"
-                                value="<?=$alternatif['nama_alternatif'];?>" id="exampleFormControlInput1"
+                                value="<?= htmlspecialchars($alternatif['nama_alternatif']); ?>"
+                                id="nama_alternatif_<?= $alternatif['id_alternatif']; ?>"
                                 placeholder="Nama Alternatif" />
                         </div>
                     </div>
+
                     <div class="card-body">
                         <div class="mb-3 mt-3">
-                            <label for="latitude" class="form-label">Latitude</label>
-                            <input type="text" class="form-control" value="<?=$alternatif['latitude'];?>"
-                                name="latitude" id="latitude" required placeholder="Latitude" />
+                            <label for="latitude_<?= $alternatif['id_alternatif']; ?>"
+                                class="form-label">Latitude</label>
+                            <input type="text" class="form-control" required name="latitude"
+                                value="<?= htmlspecialchars($alternatif['latitude']); ?>"
+                                id="latitude_<?= $alternatif['id_alternatif']; ?>" placeholder="Latitude" />
                         </div>
                     </div>
+
                     <div class="card-body">
                         <div class="mb-3 mt-3">
-                            <label for="longitude" class="form-label">Longitude</label>
-                            <input type="text" class="form-control" value="<?=$alternatif['longitude'];?>"
-                                name="longitude" id="longitude" required placeholder="Longitude" />
+                            <label for="longitude_<?= $alternatif['id_alternatif']; ?>"
+                                class="form-label">Longitude</label>
+                            <input type="text" class="form-control" required name="longitude"
+                                value="<?= htmlspecialchars($alternatif['longitude']); ?>"
+                                id="longitude_<?= $alternatif['id_alternatif']; ?>" placeholder="Longitude" />
                         </div>
                     </div>
+
                     <div class="card-body">
                         <div class="mb-3 mt-3">
-                            <label for="alamat" class="form-label">Alamat</label>
-                            <textarea class="form-control" required name="alamat"><?=$alternatif['alamat'];?></textarea>
+                            <label for="alamat_<?= $alternatif['id_alternatif']; ?>" class="form-label">Alamat</label>
+                            <textarea class="form-control" required name="alamat"
+                                id="alamat_<?= $alternatif['id_alternatif']; ?>"><?= htmlspecialchars($alternatif['alamat']); ?></textarea>
                         </div>
                     </div>
+
                     <div class="mb-3 mt-3">
-                        <label for="gambar" class="form-label">Gambar</label>
-                        <input type="file" name="gambar" class="form-control" id="gambar" placeholder="Gambar" />
-                        <input type="hidden" name="gambar_lama" value="<?=$alternatif['gambar'];?>" required
-                            class="form-control" id="gambar_lama" />
+                        <label for="gambar_<?= $alternatif['id_alternatif']; ?>" class="form-label">Gambar</label>
+                        <input type="file" name="gambar" class="form-control"
+                            id="gambar_<?= $alternatif['id_alternatif']; ?>" placeholder="Gambar" />
+                        <input type="hidden" name="gambar_lama"
+                            value="<?= htmlspecialchars($alternatif['gambar']); ?>" />
                     </div>
+
+                    <?php foreach ($getKriteria as $kriteria): ?>
+                    <?php
+                        $idKriteria = $kriteria['id_kriteria'];
+                        // Asumsikan kolom pada alternatif mengikuti pola "id_sub_ + id_kriteria"
+                        $colName = 'id_sub_' . $idKriteria;
+                        $selectedSubId = isset($alternatif[$colName]) ? $alternatif[$colName] : null;
+                        ?>
                     <div class="mb-3 mt-3">
-                        <label for="jarak_lokasi" class="form-label">Jarak Lokasi</label>
-                        <select class="form-select" name="jarak_lokasi" required aria-label="Default select example">
-                            <option value="">-- Pilih Jarak Lokasi --</option>
-                            <?php foreach ($getSubJarakLokasi as $key => $jarak_lokasi):?>
-                            <option <?=$jarak_lokasi['id_sub_kriteria'] == $alternatif['id_sub_C1'] ? 'selected':'';?>
-                                value="<?=$jarak_lokasi['id_sub_kriteria'];?>">
-                                <?=$jarak_lokasi['nama_sub_kriteria'];?> | <?=$jarak_lokasi['spesifikasi'];?></option>
-                            <?php endforeach;?>
+                        <label for="kriteria_<?= $idKriteria . '_' . $alternatif['id_alternatif']; ?>"
+                            class="form-label">
+                            <?= htmlspecialchars($kriteria['nama_kriteria']); ?>
+                        </label>
+                        <select class="form-select" name="<?= $kriteria['id_kriteria']; ?>"
+                            id="kriteria_<?= $idKriteria . '_' . $alternatif['id_alternatif']; ?>" required>
+                            <option value="">-- Pilih <?= htmlspecialchars($kriteria['nama_kriteria']); ?> --</option>
+                            <?php if (isset($subKriteriaGrouped[$idKriteria])): ?>
+                            <?php foreach ($subKriteriaGrouped[$idKriteria] as $sub): ?>
+                            <option value="<?= $sub['id_sub_kriteria']; ?>"
+                                <?= $sub['id_sub_kriteria'] == $selectedSubId ? 'selected' : ''; ?>>
+                                <?= htmlspecialchars($sub['nama_sub_kriteria']); ?> |
+                                <?= htmlspecialchars($sub['spesifikasi']); ?>
+                            </option>
+                            <?php endforeach; ?>
+                            <?php endif; ?>
                         </select>
                     </div>
-                    <div class="mb-3 mt-3">
-                        <label for="biaya" class="form-label">Biaya Sewa</label>
-                        <select class="form-select" name="biaya" required aria-label="Default select example">
-                            <option value="">-- Biaya Sewa --</option>
-                            <?php foreach ($getSubBiaya as $key => $biaya):?>
-                            <option <?=$biaya['id_sub_kriteria'] == $alternatif['id_sub_C2'] ? 'selected':'';?>
-                                value="<?=$biaya['id_sub_kriteria'];?>">
-                                <?=$biaya['nama_sub_kriteria'];?> | <?=$biaya['spesifikasi'];?></option>
-                            <?php endforeach;?>
-                        </select>
-                    </div>
-                    <div class="mb-3 mt-3">
-                        <label for="akses" class="form-label">Akses</label>
-                        <select class="form-select" name="akses" required aria-label="Default select example">
-                            <option value="">-- Akses --</option>
-                            <?php foreach ($getSubAkses as $key => $akses):?>
-                            <option <?=$akses['id_sub_kriteria'] == $alternatif['id_sub_C3'] ? 'selected':'';?>
-                                value="<?=$akses['id_sub_kriteria'];?>">
-                                <?=$akses['nama_sub_kriteria'];?> | <?=$akses['spesifikasi'];?></option>
-                            <?php endforeach;?>
-                        </select>
-                    </div>
-                    <div class="mb-3 mt-3">
-                        <label for="tema" class="form-label">Tema</label>
-                        <select class="form-select" name="tema" required aria-label="Default select example">
-                            <option value="">-- Tema --</option>
-                            <?php foreach ($getSubTema as $key => $tema):?>
-                            <option <?= $tema['id_sub_kriteria'] == $alternatif['id_sub_C4'] ? 'selected':'';?>
-                                value="<?=$tema['id_sub_kriteria'];?>">
-                                <?=$tema['nama_sub_kriteria'];?> | <?=$tema['spesifikasi'];?></option>
-                            <?php endforeach;?>
-                        </select>
-                    </div>
+                    <?php endforeach; ?>
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" name="edit" class="btn btn-outline-primary">
-                        Simpan
-                    </button>
+                    <button type="submit" name="edit" class="btn btn-outline-primary">Simpan</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-<?php endforeach;?>
+<?php endforeach; ?>
 <?php foreach ($dataAlternatif as $alternatif):?>
 <div class="modal fade" id="hapus<?=$alternatif['id_alternatif'];?>" tabindex="-1" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
