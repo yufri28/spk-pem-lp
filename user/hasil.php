@@ -255,30 +255,56 @@ Swal.fire({
                 </div>
                 <?php 
                 
+                 $nilai_baru = [];
+                 $simpan_min = [];
+                 $simpan_max = [];
                 
                     // Menentukan nilai max/min tiap kolom (termasuk solusi ideal)
                     foreach ($kriteria as $id_k => $k) {
                         foreach ($alternatif as $id => $nama) {
+                            $nilai_baru[$id][$id_k] = $nilai[$id][$id_k];
                             $kolom[$id_k][] = $nilai[$id][$id_k];
                         }
                     }
-
+                   
                     foreach ($kriteria as $id_k => $k) {
                         $total[$id_k] = array_sum($kolom[$id_k]);
                         if ($k['jenis'] == 'cost') {
                             // transformasi cost menjadi benefit
                             foreach ($alternatif as $id => $nama) {
                                 $nilai[$id][$id_k] = min($kolom[$id_k]) / $nilai[$id][$id_k];
+                                $nilai_baru[$id][$id_k] = min($kolom[$id_k]) / $nilai_baru[$id][$id_k];
                             }
+                            $simpan_min[$id][$id_k] = min($kolom[$id_k]);
+                        }else{
+                            foreach ($alternatif as $id => $nama) {
+                                $nilai[$id][$id_k] = min($kolom[$id_k]) / $nilai[$id][$id_k];
+                            }
+                            $simpan_max[$id][$id_k] = max($kolom[$id_k]);
                         }
                     }
 
+                    $norm_min = [];
+                    $norm_max = [];
                     // Normalisasi
                     foreach ($alternatif as $id => $nama) {
                         foreach ($kriteria as $id_k => $k) {
-                            $normalisasi[$id][$id_k] = $nilai[$id][$id_k] / array_sum(array_column($nilai, $id_k));
+                             if ($k['jenis'] == 'cost') {
+                                $normalisasi[$id][$id_k] = $nilai_baru[$id][$id_k] / (array_sum(array_column($nilai_baru, $id_k)) + array_sum(array_column($simpan_min, $id_k)));
+                            }else{
+                                $normalisasi[$id][$id_k] = $nilai_baru[$id][$id_k] / (array_sum(array_column($nilai_baru, $id_k)) + array_sum(array_column($simpan_max, $id_k)));
+                            }
                         }
-                    }                        
+                    }     
+
+                    foreach ($kriteria as $id_k => $k) {
+                        if ($k['jenis'] == 'cost') {
+                            $norm_min[$id][$id_k] = $simpan_min[$id][$id_k] / (array_sum(array_column($nilai_baru, $id_k)) + array_sum(array_column($simpan_min, $id_k)));
+                        }else{
+                            $norm_max[$id][$id_k] = $simpan_max[$id][$id_k] / (array_sum(array_column($nilai_baru, $id_k)) + array_sum(array_column($simpan_max, $id_k)));
+                        }
+                    }
+
                 ?>
                 <div class="card mt-2">
                     <div class="card-header bg-primary text-white">Matriks Normalisasi</div>
@@ -331,6 +357,17 @@ Swal.fire({
                                 $bobot = 0;
                             }
                             $terbobot[$id][$id_k] = $val * $bobot;
+                        }
+                    }
+
+                    $arr = [];
+                    foreach ($kriteria as $id_k => $k) {
+                        if ($k['jenis'] == 'cost') {
+                            $norm_min[$id][$id_k] = ($simpan_min[$id][$id_k] / (array_sum(array_column($nilai_baru, $id_k)) + array_sum(array_column($simpan_min, $id_k))))*$bobot_prioritas[$id_k];
+                            $arr[$id_k] = $norm_min[$id][$id_k];
+                        }else{
+                            $norm_max[$id][$id_k] = ($simpan_max[$id][$id_k] / (array_sum(array_column($nilai_baru, $id_k)) + array_sum(array_column($simpan_max, $id_k))))*$bobot_prioritas[$id_k];
+                            $arr[$id_k] = $norm_max[$id][$id_k];
                         }
                     }
                     // $terbobot = [];
@@ -397,8 +434,10 @@ Swal.fire({
                                     <?php $in = 1 ?>
                                     <?php
                                     $si = [];
+                                    $ki = [];
                                     foreach ($terbobot as $id => $row) {
                                         $si[$id] = array_sum($row);
+                                        $ki[$id] = array_sum($row)/array_sum($arr);
                                     }
                                     
                                     foreach ($terbobot as $i => $row):
@@ -445,7 +484,7 @@ Swal.fire({
                 </div>
                 <?php
                     // 1. Hitung ranking dari $si
-                    $rank = $si;
+                    $rank = $ki;
                     arsort($rank); // urut descending
                 ?>
                 <div class="card mt-2">
@@ -471,7 +510,7 @@ Swal.fire({
 
                                     <?php
                                         $peringkat = 1;
-                                        foreach ($rank as $id => $nilai_si):
+                                        foreach ($rank as $id => $nilai_ki):
                                             // Ambil data alternatif dan spesifikasi tiap kriteria
                                             $nama_alt = htmlspecialchars($alternatif[$id]['nama_alternatif']);
                                         ?>
@@ -497,7 +536,7 @@ Swal.fire({
                                         endforeach;
                                         ?>
 
-                                        <td><?= number_format($nilai_si, 4) ?></td>
+                                        <td><?= number_format($nilai_ki, 4) ?></td>
 
                                         <td>
                                             <a href="https://www.google.com/maps/dir/?api=1&destination=<?= $alternatif[$id]['latitude'] ?? '0' ?>,<?= $alternatif[$id]['longitude'] ?? '0' ?>"
