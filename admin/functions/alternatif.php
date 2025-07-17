@@ -13,7 +13,7 @@
         public function getDataAlternatif() {
             $kriteriaList = $this->getKriteria();
             
-            $select = "a.nama_alternatif, a.id_alternatif, a.latitude, a.longitude, a.alamat, a.gambar";
+            $select = "a.nama_alternatif, a.id_alternatif, a.latitude, a.longitude, a.alamat, a.tema_id, t.nama, a.gambar";
             foreach ($kriteriaList as $kriteria) {
                 $kode = $kriteria['id_kriteria']; 
                 $select .= ", MAX(CASE WHEN k.id_kriteria = '$kode' THEN kak.id_alt_kriteria END) AS id_alt_$kode";
@@ -28,6 +28,7 @@
                 JOIN kecocokan_alt_kriteria kak ON a.id_alternatif = kak.f_id_alternatif
                 JOIN sub_kriteria sk ON kak.f_id_sub_kriteria = sk.id_sub_kriteria
                 JOIN kriteria k ON kak.f_id_kriteria = k.id_kriteria
+                LEFT JOIN tema t ON t.id_tema = a.tema_id
                 GROUP BY a.id_alternatif
                 ORDER BY a.id_alternatif DESC
             ";
@@ -105,8 +106,8 @@
             }
 
             // Simpan data alternatif
-            $stmt = $this->db->prepare("INSERT INTO alternatif (nama_alternatif, latitude, longitude, alamat, gambar) VALUES (?, ?, ?, ?, ?)");
-            $stmt->bind_param("sssss", $dataAlternatif['nama_alternatif'], $dataAlternatif['latitude'], $dataAlternatif['longitude'], $dataAlternatif['alamat'], $dataAlternatif['gambar']);
+            $stmt = $this->db->prepare("INSERT INTO alternatif (nama_alternatif, latitude, longitude, alamat, gambar, tema_id) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("sssssi", $dataAlternatif['nama_alternatif'], $dataAlternatif['latitude'], $dataAlternatif['longitude'], $dataAlternatif['alamat'], $dataAlternatif['gambar'], $dataAlternatif['tema']);
             $stmt->execute();
 
             // Ambil ID alternatif terakhir
@@ -186,15 +187,16 @@
         {
             // Update data alternatif (gunakan prepared statement agar aman)
             $stmtUpdateAlt = $this->db->prepare(
-                "UPDATE alternatif SET nama_alternatif=?, alamat=?, latitude=?, longitude=?, gambar=? WHERE id_alternatif=?"
+                "UPDATE alternatif SET nama_alternatif=?, alamat=?, latitude=?, longitude=?, gambar=?, tema_id=? WHERE id_alternatif=?"
             );
             $stmtUpdateAlt->bind_param(
-                "sssssi",
+                "sssssii",
                 $dataAlternatif['nama_alternatif'],
                 $dataAlternatif['alamat'],
                 $dataAlternatif['latitude'],
                 $dataAlternatif['longitude'],
                 $dataAlternatif['gambar'],
+                $dataAlternatif['tema'],
                 $dataAlternatif['id_alternatif']
             );
             $execAlt = $stmtUpdateAlt->execute();
@@ -268,6 +270,10 @@
         public function getSubTema()
         {
             return $this->db->query("SELECT * FROM sub_kriteria WHERE f_id_kriteria = 'C4'");
+        }
+        public function getTema()
+        {
+            return $this->db->query("SELECT * FROM tema");
         }
 
     }

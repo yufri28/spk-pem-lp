@@ -9,6 +9,10 @@ class Kriteria{
         $this->db = connectDatabase();
     }
 
+    public function getDataTema()
+    {
+        return $this->db->query("SELECT * FROM tema");
+    }
     public function getKriteriaByUser($id_user)
     {
         return $this->db->query("SELECT * FROM `kriteria` JOIN bobot_kriteria ON bobot_kriteria.f_id_user = '$id_user'");

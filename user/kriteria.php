@@ -7,7 +7,7 @@ require_once './functions/kriteria.php';
 
 $data_Kriteria = $Kriteria->getKriteria();
 $data_SubKriteriaJarak = $Kriteria->getSubKriteriaJarak();
-$dataTema = $Kriteria->getTema();
+$dataTema = $Kriteria->getDataTema();
 
 $id_bobot = mysqli_fetch_assoc($data_Kriteria);
 //Perintah 1. Ambil datanya dari tabel kriteria
@@ -74,52 +74,6 @@ Swal.fire({
                         <div class="card-body">
                             <input type="hidden" name="user_lat" id="user_lat">
                             <input type="hidden" name="user_lng" id="user_lng">
-                            <!-- Perintah 2. Ubah prioritas ini agar dinamis sesuai dengan jumlah kriteria yang user input -->
-                            <!-- <div class="mb-3 mt-3">
-                                <label for="prioritas_1" class="form-label">Prioritas 1</label>
-                                <select class="form-select" id="prioritas_1" name="prioritas_1"
-                                    aria-label="Default select example" required>
-                                    <option value="">-- Pilih prioritas 1 --</option>
-                                    <?php foreach($dataKriteria as $kriteria):?>
-                                    <option value="<?=$kriteria;?>">
-                                        <?=$kriteria;?>
-                                    </option>
-                                    <?php endforeach;?>
-                                </select>
-                            </div>
-                            <div class="mb-3 mt-3">
-                                <label for="prioritas_2" class="form-label">Prioritas 2</label>
-                                <select class="form-select" id="prioritas_2" name="prioritas_2" required>
-                                    <option value="">-- Pilih prioritas 2 --</option>
-                                    <?php foreach($dataKriteria as $kriteria):?>
-                                    <option value="<?=$kriteria;?>">
-                                        <?=$kriteria;?>
-                                    </option>
-                                    <?php endforeach;?>
-                                </select>
-                            </div>
-                            <div class="mb-3 mt-3">
-                                <label for="prioritas_3" class="form-label">Prioritas 3</label>
-                                <select class="form-select" id="prioritas_3" name="prioritas_3" required>
-                                    <option value="">-- Pilih prioritas 3 --</option>
-                                    <?php foreach($dataKriteria as $kriteria):?>
-                                    <option value="<?=$kriteria;?>">
-                                        <?=$kriteria;?>
-                                    </option>
-                                    <?php endforeach;?>
-                                </select>
-                            </div>
-                            <div class="mb-3 mt-3">
-                                <label for="prioritas_4" class="form-label">Prioritas 4</label>
-                                <select class="form-select" id="prioritas_4" name="prioritas_4" required>
-                                    <option value="">-- Pilih prioritas 4 --</option>
-                                    <?php foreach($dataKriteria as $kriteria):?>
-                                    <option value="<?=$kriteria;?>">
-                                        <?=$kriteria;?>
-                                    </option>
-                                    <?php endforeach;?>
-                                </select>
-                            </div> -->
                             <?php $jumlah_kriteria = count($dataKriteria); ?>
                             <?php for ($i=1; $i <= $jumlah_kriteria; $i++): ?>
                             <div class="mb-3 mt-3">
@@ -141,8 +95,8 @@ Swal.fire({
                                 <select class="form-select" id="tema" name="tema">
                                     <option value="">-- Pilih Tema --</option>
                                     <?php foreach($dataTema as $tema):?>
-                                    <option value="<?=$tema['spesifikasi'];?>">
-                                        <?=$tema['spesifikasi'];?>
+                                    <option value="<?=$tema['id_tema'];?>">
+                                        <?=$tema['nama'];?>
                                     </option>
                                     <?php endforeach;?>
                                 </select>

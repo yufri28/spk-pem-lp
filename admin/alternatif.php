@@ -6,6 +6,7 @@ require_once './header.php';
 require_once './functions/alternatif.php';
 
 $dataAlternatif = $getDataAlternatif->getDataAlternatif();
+$dataTema = $getDataAlternatif->getTema();
 
 // if(isset($_POST['simpan'])){
 //     $namaAlternatif = htmlspecialchars($_POST['nama_alternatif']);
@@ -53,6 +54,7 @@ if (isset($_POST['simpan'])) {
     $latitude = htmlspecialchars($_POST['latitude']);
     $longitude = htmlspecialchars($_POST['longitude']);
     $alamat = htmlspecialchars($_POST['alamat']);
+    $tema = htmlspecialchars($_POST['tema']);
 
     // Handle file upload
     $gambar = $_FILES['gambar']['name'];
@@ -67,6 +69,7 @@ if (isset($_POST['simpan'])) {
             'latitude' => $latitude,
             'longitude' => $longitude,
             'alamat' => $alamat,
+            'tema' => $tema,
             'gambar' => $gambarEnkripsi
         ];
 
@@ -96,6 +99,7 @@ if (isset($_POST['edit'])) {
     $latitude = htmlspecialchars($_POST['latitude']);
     $longitude = htmlspecialchars($_POST['longitude']);
     $alamat = htmlspecialchars($_POST['alamat']);
+    $tema = htmlspecialchars($_POST['tema']);
 
     // Ambil data gambar lama dari database
     $dataAlternatifLama = $getDataAlternatif->getAlternatifById($id_alternatif);
@@ -121,6 +125,7 @@ if (isset($_POST['edit'])) {
                 'latitude' => $latitude,
                 'longitude' => $longitude,
                 'alamat' => $alamat,
+                'tema' => $tema,
                 'gambar' => $gambarEnkripsiBaru
             ];
         } else {
@@ -134,6 +139,7 @@ if (isset($_POST['edit'])) {
             'latitude' => $latitude,
             'longitude' => $longitude,
             'alamat' => $alamat,
+            'tema' => $tema,
             'gambar' => $gambarLama
         ];
     }
@@ -324,6 +330,17 @@ Swal.fire({
                                     name="alamat"></textarea>
                             </div>
                             <div class="mb-3 mt-3">
+                                <label for="tema" class="form-label">
+                                    Tema
+                                </label>
+                                <select class="form-select" name="tema" required>
+                                    <option value="">-- Pilih --</option>
+                                    <?php foreach ($dataTema as $tema): ?>
+                                    <option value="<?= $tema['id_tema']; ?>"><?= $tema['nama']; ?></option>
+                                    <?php endforeach;?>
+                                </select>
+                            </div>
+                            <div class="mb-3 mt-3">
                                 <label for="gambar" class="form-label">Gambar</label>
                                 <input type="file" name="gambar" required class="form-control" id="gambar"
                                     placeholder="Gambar" />
@@ -351,50 +368,6 @@ Swal.fire({
                                 </select>
                             </div>
                             <?php endwhile; ?>
-
-                            <!-- <div class="mb-3 mt-3">
-                                <label for="jarak_lokasi" class="form-label">Jarak Lokasi</label>
-                                <select class="form-select" name="jarak_lokasi" required
-                                    aria-label="Default select example">
-                                    <option value="">-- Pilih Jarak Lokasi --</option>
-                                    <?php foreach ($getSubJarakLokasi as $key => $jarakLokasi):?>
-                                    <option value="<?=$jarakLokasi['id_sub_kriteria'];?>">
-                                        <?=$jarakLokasi['nama_sub_kriteria'];?> | <?=$jarakLokasi['spesifikasi'];?>
-                                    </option>
-                                    <?php endforeach;?>
-                                </select>
-                            </div>
-                            <div class="mb-3 mt-3">
-                                <label for="biaya" class="form-label">Biaya Sewa</label>
-                                <select class="form-select" name="biaya" required aria-label="Default select example">
-                                    <option value="">-- Biaya Sewa --</option>
-                                    <?php foreach ($getSubBiaya as $key => $biaya):?>
-                                    <option value="<?=$biaya['id_sub_kriteria'];?>">
-                                        <?=$biaya['nama_sub_kriteria'];?> | <?=$biaya['spesifikasi'];?></option>
-                                    <?php endforeach;?>
-                                </select>
-                            </div>
-                            <div class="mb-3 mt-3">
-                                <label for="akses" class="form-label">Akses</label>
-                                <select class="form-select" name="akses" required aria-label="Default select example">
-                                    <option value="">-- Akses --</option>
-                                    <?php foreach ($getSubAkses as $key => $akses):?>
-                                    <option value="<?=$akses['id_sub_kriteria'];?>">
-                                        <?=$akses['nama_sub_kriteria'];?> | <?=$akses['spesifikasi'];?></option>
-                                    <?php endforeach;?>
-                                </select>
-                            </div>
-                            <div class="mb-3 mt-3">
-                                <label for="tema" class="form-label">Tema</label>
-                                <select class="form-select" name="tema" required aria-label="Default select example">
-                                    <option value="">-- Tema --</option>
-                                    <?php foreach ($getSubTema as $key => $tema):?>
-                                    <option value="<?=$tema['id_sub_kriteria'];?>">
-                                        <?=$tema['nama_sub_kriteria'];?> | <?=$tema['spesifikasi'];?></option>
-                                    <?php endforeach;?>
-                                </select>
-                            </div> -->
-
                             <button type="submit" name="simpan" class="btn col-12 btn-outline-primary">
                                 Simpan
                             </button>
@@ -416,6 +389,7 @@ Swal.fire({
                                         <th scope="col">Latitude</th>
                                         <th scope="col">Longitude</th>
                                         <th scope="col">Alamat</th>
+                                        <th scope="col">Tema</th>
                                         <th scope="col">Gambar</th>
                                         <?php foreach ($getKriteria as $k): ?>
                                         <th><?= htmlspecialchars($k['nama_kriteria']); ?></th>
@@ -433,6 +407,7 @@ Swal.fire({
                                         <td><?=$alternatif['latitude']??'';?></td>
                                         <td><?=$alternatif['longitude']??'';?></td>
                                         <td><?=$alternatif['alamat']??'';?></td>
+                                        <td><?=$alternatif['nama']??'';?></td>
                                         <td><img style="width:60px; height:60px;"
                                                 src="../assets/img/<?=$alternatif['gambar'];?>" alt=""></td>
                                         <?php foreach ($getKriteria as $k): ?>
@@ -522,6 +497,19 @@ Swal.fire({
                             <textarea class="form-control" required name="alamat"
                                 id="alamat_<?= $alternatif['id_alternatif']; ?>"><?= htmlspecialchars($alternatif['alamat']); ?></textarea>
                         </div>
+                    </div>
+
+                    <div class="mb-3 mt-3">
+                        <label for="tema" class="form-label">
+                            Tema
+                        </label>
+                        <select class="form-select" name="tema" required>
+                            <option value="">-- Pilih --</option>
+                            <?php foreach ($dataTema as $tema): ?>
+                            <option <?=$alternatif['tema_id'] == $tema['id_tema']?'selected':'';?>
+                                value="<?= $tema['id_tema']; ?>"><?= $tema['nama']; ?></option>
+                            <?php endforeach;?>
+                        </select>
                     </div>
 
                     <div class="mb-3 mt-3">

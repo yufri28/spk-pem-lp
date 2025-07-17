@@ -24,7 +24,7 @@ if (!isset($_POST['simpan-prioritas'])) {
     exit;
 }
 
-$tema = $_POST['tema']??'';
+$tema = htmlspecialchars($_POST['tema'])??'';
 
 ?>
 <?php if (isset($_SESSION['success'])): ?>
@@ -108,7 +108,7 @@ Swal.fire({
                                                 JOIN kecocokan_alt_kriteria kak ON a.id_alternatif = kak.f_id_alternatif
                                                 JOIN sub_kriteria sk ON kak.f_id_sub_kriteria = sk.id_sub_kriteria
                                                 JOIN kriteria k ON kak.f_id_kriteria = k.id_kriteria
-                                                WHERE sk.nama_sub_kriteria = 'Tema' AND sk.spesifikasi = '".$tema."'
+                                                WHERE a.tema_id = '".$tema."'
                                                 GROUP BY a.nama_alternatif ORDER BY a.id_alternatif DESC;");
                     }else{
                         $q = $koneksi->query("SELECT * FROM alternatif");
@@ -475,7 +475,17 @@ Swal.fire({
                                         <?php foreach($prioritas as $p): ?>
                                         <td><?= htmlspecialchars($p) ?></td>
                                         <?php endforeach; ?>
-                                        <td><?= htmlspecialchars($tema != ''? $tema:'Semua') ?></td>
+                                        <?php
+                                             $dataTema = $koneksi->query("SELECT * FROM tema");
+                                        ?>
+
+                                        <?php 
+                                        foreach ($dataTema as $key => $value):
+                                        if($tema != '' && $tema == $value['id_tema']):
+                                        ?>
+                                        <td><?= $value['nama'] ?></td>
+                                        <?php endif; ?>
+                                        <?php endforeach; ?>
                                     </tr>
                                 </tbody>
                             </table>

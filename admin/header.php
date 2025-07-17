@@ -53,6 +53,7 @@ else if($_SESSION['role'] != 0){
                         href="index.php">Beranda</a>
                     <a class="nav-link <?=$_SESSION['menu'] == 'alternatif' ? 'active':'';?>"
                         href="alternatif.php">Alternatif</a>
+                    <a class="nav-link <?=$_SESSION['menu'] == 'tema' ? 'active':'';?>" href="tema.php">Tema</a>
                     <a class="nav-link <?=$_SESSION['menu'] == 'kriteria' ? 'active':'';?>"
                         href="kriteria.php">Kriteria</a>
                     <a class="nav-link <?=$_SESSION['menu'] == 'sub-kriteria' ? 'active':'';?>"
